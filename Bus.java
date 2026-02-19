@@ -7,6 +7,7 @@ public class Bus {
     private float fuelBurnRate; //Fuel burn rate in MPG
     private float cruiseSpeed; // Most effiecent speed
 
+    //Declare Constructor for Bus Class
     public Bus(int busID, String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
         this.busID = busID;
         this.make = make;
