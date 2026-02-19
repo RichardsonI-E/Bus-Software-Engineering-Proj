@@ -38,7 +38,7 @@ public class User {
 
 /* Subclass for station manager(s) that extends User */
     public class stationManager extends User {
-        private int sManagerID;
+        private int sManagerID; //Unique identifier for station manager
         public stationManager(String name, String username, String password) {
             super(name, username, password);
         }
@@ -54,7 +54,7 @@ public class User {
 
 /* Subclass for bus manager(s) that extends User */
     public class busManager extends User {
-        private int bManagerID;
+        private int bManagerID; //Unique identifier for bus manager
         public busManager(String name, String username, String password) {
             super(name, username, password);
         }
