@@ -1,4 +1,4 @@
-class Station{
+public class Station{
     //Declare private Attributes
     private String name; //Name Attribute of Station
     private float longitude; //Longitude Attribute for location
