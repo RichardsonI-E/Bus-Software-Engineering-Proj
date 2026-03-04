@@ -1,4 +1,8 @@
+import java.util.List;
+import java.util.Scanner;
 public class User {
+    //import scanner
+    Scanner sc = new Scanner(System.in);
     /* Attributes for the User superclass */
     private String name; //User's full name
     private String username; // User's unique username for login
@@ -42,7 +46,16 @@ public class User {
     }
 
 /*  ----------------------------User methods---------------------------- */
-    // public boolean login(){
+    public static boolean login(List<User> users, String username, String password) {
+    for (User profile : users) {
+        if (profile.getUsername().equals(username) &&
+            profile.getPassword().equals(password)) {
+            return true;
+        }
+    }
+    return false;
+}
+// public boolean login(){
         //System print: Input username
         //Scanner equals new Scanner: userInput
 
@@ -57,7 +70,10 @@ public class User {
         //Otherwise, return false (after loop ends)
     //}
 
-
+    public void logout(){
+        System.out.println("You have been logged out.");
+        //System.exit(0);
+    }
     // public void logout(){
         //System print: You have been logged out.
     //}
