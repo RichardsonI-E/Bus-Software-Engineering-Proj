@@ -1,8 +1,10 @@
 import java.util.List;
 import java.util.Scanner;
 public class User {
-    //import scanner
-    Scanner sc = new Scanner(System.in);
+    //Create a central storage system for this as well.
+
+    Scanner sc = new Scanner(System.in); //import scanner
+
     /* Attributes for the User superclass */
     private String name; //User's full name
     private String username; // User's unique username for login
