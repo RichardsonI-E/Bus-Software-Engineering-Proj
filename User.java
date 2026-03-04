@@ -1,9 +1,14 @@
-<<<<<<< branchElisha
 public class User {
     /* Attributes for the User superclass */
     private String name; //User's full name
     private String username; // User's unique username for login
     private String password; // User's password for authentication
+
+    public User() {
+        name = "John Smith";
+        username = "SmithJ";
+        password = "123abc";
+    }
 
     public User(String name, String username, String password) {
         this.name = name;
@@ -35,11 +40,68 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+/*  ----------------------------User methods---------------------------- */
+    // public boolean login(){
+        //System print: Input username
+        //Scanner equals new Scanner: userInput
+
+        //System print: Input password
+        //Scanner equals new Scanner: passInput
+
+        // for each profile:
+            //if userInput equals Username
+                //continue
+                //if passInput equals Password:
+                    //return true
+        //Otherwise, return false (after loop ends)
+    //}
+
+
+    // public void logout(){
+        //System print: You have been logged out.
+    //}
+
+    //public void updateProfile(){
+        //System print: Change Name?
+        //if button equals yes:
+            //System print: Input new full name
+            //Scanner equals new Scanner:  nameInput
+            //setName(nameInput)
+        // Java regex: newUserName = ([last word] + [first letter of first word])
+        // setUsername(newUserName)
+        //System print: Input new password
+        //Scanner equals new Scanner: passwordInput
+        //setPassword(passwordInput)
+    //}
+
+    //public travelRoute createTravelRoute(){
+        //System print: Input starting location
+        //Scanner equals new Scanner: startInput
+        //for (station in stationList):
+            //if startInput equals station.getName():
+                //continue
+            //else:
+                //System print: Invalid starting location. Please try again.
+                //return null
+        //System print: Input destination
+        //Scanner equals new Scanner: endInput
+        //for (station in stationList):
+            //if endInput equals station.getName():
+                //continue
+            //else:
+                //System print: Invalid starting location. Please try again.
+                //return null
+        //return new travelRoute(startInput, endInput)
 /* ----------------------------User Subclasses---------------------------- */
 
 /* Subclass for station manager(s) that extends User */
     public class stationManager extends User {
         private int sManagerID; //Unique identifier for station manager
+        // public Station[] stationList; //List of stations managed by station manager
+        public stationManager() {
+        }
+
         public stationManager(String name, String username, String password) {
             super(name, username, password);
         }
@@ -50,12 +112,81 @@ public class User {
         public void setSManagerID(int sManagerID) {
             this.sManagerID = sManagerID;
         }
+/*  ----------------------------StationManager methods---------------------------- */
+        //private void addStation(){
+            //System print: Input station name
+            //Scanner equals new Scanner: sName
+
+            //System print: Input station longitude
+            //Scanner equals new Scanner: sLong
+
+            //System print: Input station latitude
+            //Scanner equals new Scanner: sLat
+
+            //stationList.add(new Station(sName, sLong, sLat))
+        //}
+
+        //private void removeStation(){
+            //System print: Input station name
+            //Scanner equals new Scanner: sName
+
+            //for (station in stationList):
+                //if sName equals station.getName():
+                    //stationList.remove(station)
+                    //break
+                //else:
+                    //System print: Invalid station name. Please try again.
+        //}
+
+        //private void updateStation(){
+            //System print: Input station's current name
+            //Scanner equals new Scanner: sName
+
+            //for (station in stationList):
+                //if sName equals station.getName():
+                    //System print: Input new station name (or press enter to keep current name)
+                    //Scanner equals new Scanner: newSName
+                    //if newSName is not empty:
+                        //station.setName(newSName)
+
+                    //System print: Input new station longitude (or press enter to keep current longitude)
+                    //Scanner equals new Scanner: newSLong
+                    //if newSLong is not empty:
+                        //station.setLongitude(newSLong)
+
+                    //System print: Input new station latitude (or press enter to keep current latitude)
+                    //Scanner equals new Scanner: newSLat
+                    //if newSLat is not empty:
+                        //station.setLatitude(newSLat)
+                //else:
+                    //System print: Invalid station name. Please try again.
+        //}
+
+        //private void viewStations(){
+            //for (station in stationList):
+                //System print: station.getName() + " - Longitude: " + station.getLongitude() + ", Latitude: " + station.getLatitude()
+        //}
+
+        //private void viewStation(){
+            //System print: Input station name
+            //Scanner equals new Scanner: sName
+
+            //for (station in stationList):
+                //if sName equals station.getName():
+                    //System print: station.getName() + " - Longitude: " + station.getLongitude() + ", Latitude: " + station.getLatitude()
+                    //break
+                //else:
+                    //System print: Invalid station name. Please try again.
+        //}
     }
 
 
 /* Subclass for bus manager(s) that extends User */
     public class busManager extends User {
         private int bManagerID; //Unique identifier for bus manager
+        // private Bus[] busList; //List of buses managed by bus manager
+        public busManager() {
+        }
         public busManager(String name, String username, String password) {
             super(name, username, password);
         }
@@ -66,9 +197,72 @@ public class User {
         public void setBManagerID(int bManagerID) {
             this.bManagerID = bManagerID;
         }
+/*  ----------------------------BusManager methods---------------------------- */
+        //private void addBus(){
+            //System print: Input bus make
+            //Scanner equals new Scanner: bMake
+
+            //System print: Input bus model
+            //Scanner equals new Scanner: bModel
+
+            //System print: Input bus tank size
+            //Scanner equals new Scanner: bTankSize
+
+            //System print: Input bus' fuel burn rate
+            //Scanner equals new Scanner: bFuelBurnRate
+
+            //System print: Input bus' cruise speed
+            //Scanner equals new Scanner: bCruiseSpeed
+
+            //busList.add(new Bus(bMake, bModel, bTankSize, bFuelBurnRate, bCruiseSpeed))
+        //}
+
+        //private void removeBus(){
+            //System print: Input bus make or ID
+            //Scanner equals new Scanner: bnameID
+
+            //for (bus in busList):
+                //if bnameID equals bus.getMake() || bnameID equals String.valueOf(bus.getBusID()):
+                    //busList.remove(bus)
+                    //break
+                //else:
+                    //System print: Invalid bus name. Please try again.
+        //}
+
+        //private void updateBus(){
+            //System print: Input bus make or ID
+            //Scanner equals new Scanner: bnameID
+
+            //for (bus in busList):
+                //if bnameID equals bus.getMake() || bnameID equals String.valueOf(bus.getBusID()):
+                    //System print: Input new bus name (or press enter to keep current name)
+                    //Scanner equals new Scanner: newBName
+                    //if newBName is not empty:
+                        //bus.setMake(newBName)
+
+                    //System print: Input new bus tank size (or press enter to keep current tank size)
+                    //Scanner equals new Scanner: newBTankSize
+                    //if newBTankSize is not empty:
+                        //bus.setTankSize(newBTankSize)
+                //else:
+                    //System print: Invalid bus name. Please try again.
+        //}
+
+        //private void viewBuses(){
+            //for (bus in busList):
+                //System print: bus.getMake() + " - Model: " + bus.getModel() + ", Tank Size: " + bus.getTankSize() + ", Fuel Burn Rate: " + bus.getFuelBurnRate() + ", Cruise Speed: " + bus.getCruiseSpeed()
+        //}
+
+        //private void viewBus(){
+            //System print: Input bus make or ID
+            //Scanner equals new Scanner: bnameID
+
+            //for (bus in busList):
+                //if bnameID equals bus.getMake() || bnameID equals String.valueOf(bus.getBusID()):
+                    //System print: bus.getMake() + " - Model: " + bus.getModel() + ", Tank Size: " + bus.getTankSize() + ", Fuel Burn Rate: " + bus.getFuelBurnRate() + ", Cruise Speed: " + bus.getCruiseSpeed()
+                    //break
+                //else:
+                    //System print: Invalid bus name. Please try again.
+        //}
     }
-=======
-class User{
-    
->>>>>>> main
 }
