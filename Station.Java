@@ -16,8 +16,8 @@ public class Station{
     //Declare empty constructor
     public Station(){
         name = "";
-        longitude = 0.0;
-        latitude = 0.0;
+        longitude = (float) 0.0;
+        latitude = (float) 0.0;
     }
 
     //Declare Constructor
@@ -61,8 +61,7 @@ public class Station{
         //Method for refueling a bus.
         public void refuelBus(Bus bus){
             //Do we want to incorporate the get bus id from the bus class.
-            System.out.println("Bus has been refueled. \n
-            Bus ID: " + bus.getBusID());
+            System.out.println("Bus has been refueled. \n Bus ID: " + bus.getBusId());
         }
     }
 }
