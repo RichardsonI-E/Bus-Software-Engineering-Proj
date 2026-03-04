@@ -65,7 +65,20 @@ public class Bus {
             return cruiseSpeed;
         }
 
+        /*-------------------- Declare Subclass ----------------------*/
+        public class CityBus extends Bus{
+            public CityBus(int busID, String make, String model, float tankSize, float fuelBurnRate){
+                super(busID, make, model, tankSize, fuelBurnRate, cruiseSpeed);
+            }
+        }
 
+        public class LongDisBus extends Bus{
+            public LongDisBus(int busID, String make, String model, float tankSize, float fuelBurnRate){
+                super(busID, make, model, tankSize, fuelBurnRate, fuelBurnRate);
+            }
+        }
+
+        //quick test of main class constructor
     public static void main(String[] args) {
         System.out.println("test test");
         Bus bus = new Bus(1234, "Travel", "Cross-Road", 80, 10, 55);
