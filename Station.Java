@@ -1,13 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-
 public class Station{
-    //Imported Scanner as sc
-    Scanner sc = new Scanner(System.in);
-    //Created Arraylist for stations
-    List<Station> stations = new ArrayList<>();
-
     //Declare private Attributes
     private String name; //Name Attribute of Station
     private float longitude; //Longitude Attribute for location
@@ -61,6 +52,7 @@ public class Station{
         //Method for refueling a bus.
         public void refuelBus(Bus bus){
             //Do we want to incorporate the get bus id from the bus class.
+            //add code that 'resets' the max range of the given bus to full
             System.out.println("Bus has been refueled. \n Bus ID: " + bus.getBusId());
         }
     }
