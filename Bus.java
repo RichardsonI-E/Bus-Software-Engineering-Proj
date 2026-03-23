@@ -1,8 +1,14 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 public class Bus {
-    /*We need to create a list or storage for the classes to add
-    edit, and delete from. This will also help the classes communicate 
-    with each other. - Ivan */
-    
+
+    //Imported Scanner as sc
+    Scanner sc = new Scanner(System.in);
+    // Created Arraylist for buses
+    List<Bus> buses = new ArrayList<>();
+
     //Declaring Attributes
     private int busID; //ID number of Bus
     private String make; //Make of the Bus

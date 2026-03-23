@@ -1,8 +1,11 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-public class User {
-    //Create a central storage system for this as well.
 
+public class User {
+    //Created Arraylist for users
+    List<User> users = new ArrayList<>();
+    //Imported Scanner as sc
     Scanner sc = new Scanner(System.in); //import scanner
 
     /* Attributes for the User superclass */

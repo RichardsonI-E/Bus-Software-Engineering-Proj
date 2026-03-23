@@ -1,4 +1,13 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 public class Station{
+    //Imported Scanner as sc
+    Scanner sc = new Scanner(System.in);
+    //Created Arraylist for stations
+    List<Station> stations = new ArrayList<>();
+
     //Declare private Attributes
     private String name; //Name Attribute of Station
     private float longitude; //Longitude Attribute for location
