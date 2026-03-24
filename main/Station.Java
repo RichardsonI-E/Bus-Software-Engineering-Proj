@@ -1,3 +1,5 @@
+import main;
+
 public class Station{
     //Declare private Attributes
     private String name; //Name Attribute of Station

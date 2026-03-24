@@ -1,10 +1,19 @@
-import java.awt.*;
-import javax.swing.*;
+import java.awt.CardLayout;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridBagLayout;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+import screens.HomeScreen;
 import screens.LoginScreen;
 
 class StartInterface{
     public static void main(String[] args) {
-        JFrame app = new JFrame(); //Create a new java swing window to start the program
+        JFrame app = new JFrame("Group 6: Bus Planner"); //Create a new java swing window to start the program
 
         CardLayout layout = new CardLayout(); //creates layout that allows swapping between tabs/screens
         JPanel container = new JPanel(layout);
@@ -17,10 +26,9 @@ class StartInterface{
         disclaimer.setAlignmentX(Component.CENTER_ALIGNMENT);
         startScreen.add(disclaimer); //create and add disclaimer to start screen for software as per instructions
 
-        LoginScreen loginScreen = new LoginScreen();//refer to LoginScreen.java
+        LoginScreen loginScreen = new LoginScreen(app, layout, container);//refer to LoginScreen.java
 
-        JPanel homeScreen = new JPanel();
-        //creates a container to hold the home screen
+        HomeScreen homeScreen = new HomeScreen();
 
         JPanel mapScreen = new JPanel();
         //creates a container to hold the map screen
@@ -46,7 +54,7 @@ class StartInterface{
         app.setSize(800, 600);
         app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         app.setVisible(true);
-        Timer start = new Timer(3000, e ->{
+        Timer start = new Timer(300, e ->{
                 layout.show(container, "login");
             });
         start.setRepeats(false);
