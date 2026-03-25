@@ -9,6 +9,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -20,21 +21,28 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import main.User;
 
+import main.User;
+/*The main class associated with the Login Screen. It allows the user to input a username and (hidden)
+password (currently allows login via pressing the button) or create an account, inputting their first and last name,
+then make and confirm a password, in which a username will be automatically generated (not yet tied to User database)*/
 public class LoginScreen extends JPanel{
     private CardLayout cl;
     private JPanel container;
     public LoginScreen(JFrame parent, CardLayout cl, JPanel container){
         this.cl = cl;
         this.container = container;
-        User x = null;
+
+        User x = null;//to be used to store the given user
+
+        //set the screen's layout to gridbag with light grey color
         setLayout(new GridBagLayout());
         setBackground(Color.lightGray);
+
+        //main container to hold the contents of the login screen
         JPanel logContainer = new JPanel();
         logContainer.setBackground(Color.lightGray);
         logContainer.setLayout(new BoxLayout(logContainer, BoxLayout.Y_AXIS));
-        //creates a container to hold the login screen with grid layout (1 column, 3 rows)
 
         //define and add placeholder logo
         JPanel logoP = new JPanel();
@@ -58,7 +66,7 @@ public class LoginScreen extends JPanel{
         logContainer.add(title);
         logContainer.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        //define and add form for login/signup
+        //define and add form for login/signup with grid bag layout
         JPanel form = new JPanel();
         form.setLayout(new GridBagLayout());
         GridBagConstraints f = new GridBagConstraints();
@@ -73,6 +81,7 @@ public class LoginScreen extends JPanel{
         form.setOpaque(true);
         form.setBackground(Color.white);
 
+        //define entries and labels for the username and password
         JLabel userTxt = new JLabel("Username:");
         userTxt.setAlignmentX(Component.LEFT_ALIGNMENT);
         JTextField user = new JTextField();
@@ -84,6 +93,7 @@ public class LoginScreen extends JPanel{
         pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
 
+        //creates a login button to validate user input (currently ignores validation)
         JButton login = new JButton("Login");
         login.setAlignmentX(Component.CENTER_ALIGNMENT);
         login.addActionListener( e -> {
@@ -107,12 +117,13 @@ public class LoginScreen extends JPanel{
         */
         });
 
+        //Label to create a new user account
         JLabel create = new JLabel("Create an Account");
         create.setForeground(Color.BLUE);
         create.setAlignmentX(Component.CENTER_ALIGNMENT);
 
 
-
+        //add all elements to the form
         form.add(userTxt, f);
         f.gridy = 1;
         form.add(user, f);
@@ -130,6 +141,7 @@ public class LoginScreen extends JPanel{
         f.gridy = 5;
         form.add(create, f);
 
+        //add form to the container and add container to screen
         logContainer.add(form);
         add(logContainer);
 
@@ -137,16 +149,22 @@ public class LoginScreen extends JPanel{
         //-------------functions for login:----------------
 
         create.addMouseListener(new MouseAdapter(){
+            //if the "create account" is hovered over, change color to dark grey
             @Override
             public void mouseEntered(MouseEvent e){
                 create.setForeground(Color.DARK_GRAY);
             }
+
+            //return label to original color when exited
             @Override
             public void mouseExited(MouseEvent e){
                 create.setForeground(Color.BLUE);
             }
+
+            //if the label is clicked, trigger a popup to prompt user for information
             @Override
             public void mouseClicked(MouseEvent e){
+                //add dialog box with grid bag layout
                 JDialog signUp = new JDialog(parent, "Sign Up", true);
                 signUp.getContentPane().setLayout(new GridBagLayout());
                 GridBagConstraints s = new GridBagConstraints();
@@ -156,39 +174,50 @@ public class LoginScreen extends JPanel{
                 s.weightx = 1.0;
                 s.insets = new Insets(5, 0, 5, 0);
 
+                //Label and entry field for the user's first name
                 JLabel fNTxt = new JLabel("First Name:");
                 JTextField firstName = new JTextField();
                 user.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
+                //Label and entry field for the user's last name
                 JLabel lNTxt = new JLabel("Last Name:");
                 JTextField lastName = new JTextField();
                 pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-
+                //Label and entry field for the user's custom password
                 JLabel pTxt = new JLabel("Create a Password:");
                 JPasswordField makePass = new JPasswordField();
                 pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
+                //Label and entry field for the user to confirm password
                 JLabel pCTxt = new JLabel("Confirm Password:");
                 JPasswordField confPass = new JPasswordField();
                 pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
+                //add submit button
                 JButton submit = new JButton("Create Account");
+                //when clicked, check if the created password matches what is in the confirm password field
                 submit.addActionListener(m ->{
                     System.out.println("Click");
                     if(java.util.Arrays.equals(makePass.getPassword(), confPass.getPassword())){
-                    String firstNamef = firstName.getText().trim();
-                    String lastNamef = lastName.getText().trim();
+                    String firstNamef = firstName.getText().trim(); //set the final first name for the user
+                    String lastNamef = lastName.getText().trim(); //set the final last name for the user
+
+                    //create and set custom username for user (tbd: create code if created username matches one in records)
                     String usernamef = lastNamef +
                         (firstNamef.isEmpty() ? "" :
                         firstNamef.substring(0,1).toUpperCase() + firstNamef.substring(1));
                     User newU = new User();
+
+                    //set the new user's full name, username and password
                     newU.setName(firstNamef + " " + lastNamef);
                     char[] password = makePass.getPassword();
                     newU.setPassword(new String(password));
-                    java.util.Arrays.fill(password, '\0'); // clear it
+                    java.util.Arrays.fill(password, '\0'); // clear password from record
                     newU.setUsername(usernamef);
                     User.users.add(newU);
+                    
+                    //create confirmation box displaying username and close sign up dialog box
                     JOptionPane.showMessageDialog(signUp,
                         "Your Username: " + usernamef,
                         "Account Created!",
@@ -196,11 +225,13 @@ public class LoginScreen extends JPanel{
                     signUp.dispose();
                     }
                     else{
+                        //if passwords do not match, display warning accordingly
                         JOptionPane.showMessageDialog(signUp, "Password does not match confirmation", "Error", JOptionPane.WARNING_MESSAGE);
                     }
                 });
                 
 
+                //add all elements to the sign up dialog box
                 signUp.add(fNTxt, s);
                 s.gridy = 1;
                 signUp.add(firstName, s);
@@ -223,7 +254,7 @@ public class LoginScreen extends JPanel{
                 signUp.add(submit, s);
                 
 
-
+                //define constraints of dialog box and display it
                 signUp.setSize(400, 300);
                 signUp.setLocationRelativeTo(parent);
                 signUp.setVisible(true);
