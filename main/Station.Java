@@ -1,11 +1,10 @@
-import main;
+package main;
 
 public class Station{
     //Declare private Attributes
     private String name; //Name Attribute of Station
     private float longitude; //Longitude Attribute for location
     private float latitude; //Latitude Attribute for location
-    public static List<Station> stations = new ArrayList<>();
 
     //Declare empty constructor
     public Station(){

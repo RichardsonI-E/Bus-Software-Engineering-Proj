@@ -1,15 +1,12 @@
 package main;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Bus {
 
     //Imported Scanner as sc
     Scanner sc = new Scanner(System.in);
-    // Created Arraylist for buses
-    public static List<Bus> buses = new ArrayList<>();
+    
 
     //Declaring Attributes
     private int busID; //ID number of Bus
