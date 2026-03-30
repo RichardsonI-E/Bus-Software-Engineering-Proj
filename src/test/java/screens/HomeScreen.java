@@ -146,6 +146,7 @@ public class HomeScreen extends JPanel{
 
         //title for the main content panel
         JLabel title = new JLabel("Create a new Route");
+        title.setAlignmentX(CENTER_ALIGNMENT);
         title.setFont(subTitle);
 
         //add main form to the content panel, setting layout to gridbag
