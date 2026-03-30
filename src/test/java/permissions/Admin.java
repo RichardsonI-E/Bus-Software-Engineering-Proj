@@ -1,19 +1,14 @@
 package permissions;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.google.cloud.firestore.Firestore;
-
-import firebase.FirebaseService;
+import json.JsonUtilities;
 import primary.User;
 
 public class Admin extends User {
     private static final Admin instance = new Admin();
     // Created Arraylist for users
-    private static List<User> usersLocal = new ArrayList<>();
+    private static List<User> users = JsonUtilities.loadUsers();
 
     private Admin() {
     }; // default constructor
@@ -28,43 +23,19 @@ public class Admin extends User {
     }
 
     public static List<User> getUsers() {
-        return usersLocal;
+        return users;
     }
 
     public static void setUsers(List<User> users) {
-        Admin.usersLocal = users;
+        Admin.users = users;
+        JsonUtilities.saveUsers(users);
     }
     // main methods
 
     public static void addUser(User user) {
-        try {
-            Firestore db = FirebaseService.getDB();
-            Map<String, Object> data = new HashMap<>();
-            data.put("name", user.getName());
-            data.put("username", user.getUsername());
-            data.put("password", user.getPassword());
-            data.put("permission", user.getPerms());
-
-            db.collection("users").add(data);
-
-        } catch (Exception e) {
-        }
+        users.add(user);
+        JsonUtilities.saveUsers(users);
     }
 
-    public static void loadUsers() {
-        try {
-            Firestore db = FirebaseService.getDB();
 
-            db.collection("users").get().get().forEach(doc -> {
-                User a = new User();
-                a.setName(doc.getString("name"));
-                a.setUsername(doc.getString("username"));
-                a.setPassword(doc.getString("password"));
-                a.setPerms(doc.getString("permission"));
-
-                usersLocal.add(a);
-            });
-        } catch (Exception e) {
-        }
-    }
 }

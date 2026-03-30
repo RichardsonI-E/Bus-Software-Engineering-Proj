@@ -101,7 +101,7 @@ public class LoginScreen extends JPanel{
         login.addActionListener( e -> {
             String userInput = user.getText();
             String passInput = new String(pass.getPassword());
-            Admin.loadUsers();
+            Admin.getUsers();
             boolean validUser = false;
             for(int l = 0; l < Admin.getUsers().size(); l++){
                         if(Admin.getUsers().get(l).getUsername().equalsIgnoreCase(userInput)){
@@ -237,7 +237,7 @@ public class LoginScreen extends JPanel{
                     java.util.Arrays.fill(password, '\0'); // clear password from record
 
                     //contingent: if two usernames are the same, add a 1 to the end of the username
-                    Admin.loadUsers();
+                    Admin.getUsers();
                     for(int l = 0; l < Admin.getUsers().size(); l++){
                         if(Admin.getUsers().get(l).getUsername().equalsIgnoreCase(usernamef)){
                             usernamef = usernamef + 1;

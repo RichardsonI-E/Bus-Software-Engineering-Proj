@@ -1,14 +1,14 @@
 package permissions;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import json.JsonUtilities;
 import primary.Bus;
 import primary.User;
 
 public class BusManager extends User {
     // Created Arraylist for buses
-    private static List<Bus> buses = new ArrayList<>();
+    private static List<Bus> buses = JsonUtilities.loadBuses();
 
     /* Subclass for bus manager(s) that extends User */
     public BusManager() {
@@ -17,26 +17,13 @@ public class BusManager extends User {
     public BusManager(String name, String username, String password, String perms) {
         super(name, username, password, "busManager");
     }
+
+    public static void addBus(Bus bus) {
+        buses.add(bus);
+        JsonUtilities.saveBuses(buses);
+    }
+
     /* ----------------------------BusManager methods---------------------------- */
-    // private void addBus(){
-    // System print: Input bus make
-    // Scanner equals new Scanner: bMake
-
-    // System print: Input bus model
-    // Scanner equals new Scanner: bModel
-
-    // System print: Input bus tank size
-    // Scanner equals new Scanner: bTankSize
-
-    // System print: Input bus' fuel burn rate
-    // Scanner equals new Scanner: bFuelBurnRate
-
-    // System print: Input bus' cruise speed
-    // Scanner equals new Scanner: bCruiseSpeed
-
-    // busList.add(new Bus(bMake, bModel, bTankSize, bFuelBurnRate, bCruiseSpeed))
-    // }
-
     // private void removeBus(){
     // System print: Input bus make or ID
     // Scanner equals new Scanner: bnameID

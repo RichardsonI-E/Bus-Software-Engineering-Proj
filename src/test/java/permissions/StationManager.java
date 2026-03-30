@@ -1,8 +1,8 @@
 package permissions;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import json.JsonUtilities;
 import primary.Station;
 import primary.User;
 
@@ -11,7 +11,7 @@ import primary.User;
 public class StationManager extends User{
     private static StationManager instance = new StationManager();
     //Created Arraylist for stations
-    private static List<Station> stations = new ArrayList<>();
+    private static List<Station> stations = JsonUtilities.loadStations();
     
     private StationManager(){}; //default constructor
 
@@ -27,5 +27,8 @@ public class StationManager extends User{
         return stations;
     }
 
-
+    public static void addStation(Station bus) {
+        stations.add(bus);
+        JsonUtilities.saveStations(stations);
+    }
 }
