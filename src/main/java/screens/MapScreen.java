@@ -85,6 +85,7 @@ public class MapScreen extends JPanel {
 
         // Button actions
         a1.addActionListener(e -> cl.show(container, "home"));
+        a2.addActionListener(e -> cl.show(container, "settings"));
         a3.addActionListener(e -> JOptionPane.showMessageDialog(this, "You do not have permission to access this page.", "Invalid Permissions", JOptionPane.WARNING_MESSAGE));
         a4.addActionListener(e -> JOptionPane.showMessageDialog(this, "You do not have permission to access this page.", "Invalid Permissions", JOptionPane.WARNING_MESSAGE));
         a5.addActionListener(e -> cl.show(container, "login"));

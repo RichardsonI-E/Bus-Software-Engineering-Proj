@@ -1,5 +1,13 @@
 package screens;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
+
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -10,12 +18,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
+public class SettingsScreen extends JPanel{
+    private CardLayout cl;
+    private JPanel container;
+    private Font subTitle = new Font("Arial", Font.BOLD, 20);
 
-public class SettingsScreen {
-    
     public SettingsScreen(JFrame parent, CardLayout cl, JPanel container) {
         this.cl = cl;
         this.container = container;
@@ -45,7 +52,7 @@ public class SettingsScreen {
         JMenuItem a1 = new JMenuItem("Home");
         a1.setFont(subTitle);
         a1.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        JMenuItem a2 = new JMenuItem("Account Settings");
+        JMenuItem a2 = new JMenuItem("View Map");
         a2.setFont(subTitle);
         a2.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         JMenuItem a3 = new JMenuItem("Manage Buses");
@@ -75,4 +82,7 @@ public class SettingsScreen {
 
         topTab.add(mockHamburger, BorderLayout.WEST);
         topTab.add(currentPage, BorderLayout.CENTER);
+
+        add(topTab, BorderLayout.NORTH);
+}
 }

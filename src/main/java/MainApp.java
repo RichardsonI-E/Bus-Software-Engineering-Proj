@@ -13,6 +13,7 @@ import javafx.embed.swing.JFXPanel;
 import screens.HomeScreen;
 import screens.LoginScreen;
 import screens.MapScreen;
+import screens.SettingsScreen;
 
 /*This class serves as the main executable for our bus planning system.
 It utilizes a CardLayout to switch between tabs/screens that are defined in the screens package (with the
@@ -41,6 +42,8 @@ class StartInterface{
 
         MapScreen mapScreen = new MapScreen(app, layout, container);
 
+        SettingsScreen settingsScreen = new SettingsScreen(app, layout, container);
+
         //JPanel sManageScreen = new JPanel();
         //creates a container to hold the screen for managers to manage stations(currently a placeholder)
         //JPanel bManageScreen = new JPanel();
@@ -51,6 +54,7 @@ class StartInterface{
         container.add(loginScreen, "login");
         container.add(homeScreen, "home");
         container.add(mapScreen, "map");
+        container.add(settingsScreen, "settings");
         //container.add(sManageScreen, "smanage");
         //container.add(bManageScreen, "bmanage");
 

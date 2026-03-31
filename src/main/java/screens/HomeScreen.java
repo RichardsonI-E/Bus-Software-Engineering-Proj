@@ -102,6 +102,10 @@ public class HomeScreen extends JPanel{
             cl.show(container, "map");
         });
 
+        a2.addActionListener((actionEvent) -> {
+            cl.show(container, "settings");
+        });
+
         //if manage Stations/Buttons is pressed, display a warning that the user does not have permission to view the page
         a3.addActionListener(e ->{
             JOptionPane.showMessageDialog(this,
