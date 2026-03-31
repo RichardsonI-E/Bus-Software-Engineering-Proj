@@ -24,6 +24,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import components.Session;
 import permissions.Admin;
 import primary.User;
 
@@ -33,7 +34,7 @@ then make and confirm a password, in which a username will be automatically gene
 public class LoginScreen extends JPanel {
     private CardLayout cl;
     private JPanel container;
-    User currentUser = null;// to be used to store the given user
+    User currentUser = null; // to be used to store the given user
 
     public LoginScreen(JFrame parent, CardLayout cl, JPanel container) {
         this.cl = cl;
@@ -109,6 +110,7 @@ public class LoginScreen extends JPanel {
                     validUser = true;
                     if (Admin.getUsers().get(l).getPassword().equals(passInput)) {
                         currentUser = Admin.getUsers().get(l);
+                        Session.setUser(currentUser);
                         pass.setBorder(BorderFactory.createLineBorder(Color.BLACK));
                         user.setBorder(BorderFactory.createLineBorder(Color.BLACK));
                         cl.show(container, "home");
@@ -126,24 +128,6 @@ public class LoginScreen extends JPanel {
                 user.setBorder(BorderFactory.createLineBorder(Color.RED));
                 pass.setBorder(BorderFactory.createLineBorder(Color.RED));
             }
-            /*
-             * if(userIn.equalsIgnoreCase("Test")
-             * && passIn.equalsIgnoreCase("Test")){
-             *
-             * }/*
-             * /*
-             * for (user i : users){
-             * if (i.getUsername == userIn){
-             * if (i.getPassword == passIn){
-             * //return given user
-             * }else{
-             * pass.borderColor(red)
-             * addLabel("Incorrect Password")}
-             * }else{
-             * user.borderColor(red)
-             * addLabel("User not Found")}}
-             * }
-             */
         });
 
         // Label to create a new user account

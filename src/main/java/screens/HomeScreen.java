@@ -7,22 +7,19 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
+
+import components.topTab;
 
 public class HomeScreen extends JPanel{
     //create placeholder objects for the parent's cardlayout and container
@@ -41,103 +38,9 @@ public class HomeScreen extends JPanel{
             addStop.setVisible(stopCount < 3);//if amount of stops is at least 3, it is not visible
         }
     public HomeScreen(JFrame parent, CardLayout cl, JPanel container){
-        this.cl = cl;
-        this.container = container;
+        setLayout(new BorderLayout());//set page layout as a borderlayout
 
-        setLayout(new BorderLayout()); //sets the layout of the screen to Border
-
-        //defines tab that holds hamburger button and Title of the screen
-        JPanel topTab = new JPanel();
-        topTab.setLayout(new BorderLayout());
-        topTab.setAlignmentX(Component.CENTER_ALIGNMENT);
-        topTab.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, Color.BLACK));
-
-        //Title of the given screen, aligned to the center of the tab
-        JLabel currentPage = new JLabel("Home");
-        currentPage.setFont(new Font("Arial", Font.BOLD, 24));
-        currentPage.setHorizontalAlignment(JLabel.CENTER);
-
-        //creates an image for the hamburger icon (text does not work properly) and sets its proper size
-        ImageIcon hamburger = new ImageIcon(getClass().getClassLoader().getResource(("Hamburger_icon.png")));
-        Image scaled = hamburger.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
-        ImageIcon scaledHamburger = new ImageIcon(scaled);
-
-        //creates the Hamburger button, removing java's traditional button style
-        JButton mockHamburger = new JButton(scaledHamburger);
-        mockHamburger.setBorderPainted(false);
-        mockHamburger.setContentAreaFilled(false);
-        mockHamburger.setFocusPainted(false);
-
-        //Defines the hamburger menu, setting individual entries and subtitle font style
-        JPopupMenu hbMenu = new JPopupMenu();
-
-        JMenuItem a1 = new JMenuItem("View Map");
-        a1.setFont(new Font("Arial", Font.BOLD, 18));
-        a1.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        JMenuItem a2 = new JMenuItem("Account Settings");
-        a2.setFont(new Font("Arial", Font.BOLD, 18));
-        a2.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        JMenuItem a3 = new JMenuItem("Manage Buses");
-        a3.setFont(new Font("Arial", Font.BOLD, 18));
-        a3.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        JMenuItem a4 = new JMenuItem("Manage Stations");
-        a4.setFont(new Font("Arial", Font.BOLD, 18));
-        a4.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        JMenuItem a5 = new JMenuItem("Logout");
-        a5.setFont(new Font("Arial", Font.BOLD, 18));
-        a5.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-        hbMenu.add(a1);
-        hbMenu.add(a2);
-        hbMenu.add(a3);
-        hbMenu.add(a4);
-        hbMenu.add(a5);
-
-
-        a1.addActionListener((actionEvent) -> {
-            cl.show(container, "map");
-        });
-
-        a2.addActionListener((actionEvent) -> {
-            cl.show(container, "settings");
-        });
-
-        //if manage Stations/Buttons is pressed, display a warning that the user does not have permission to view the page
-        a3.addActionListener(e ->{
-            JOptionPane.showMessageDialog(this,
-                "You do not have permission to access this page. Please contact an administrator to request permission change.",
-                "Invalid Permissions", JOptionPane.WARNING_MESSAGE);
-        });
-
-        a4.addActionListener(e ->{
-            JOptionPane.showMessageDialog(this,
-                "You do not have permission to access this page. Please contact an administrator to request permission change.",
-                "Invalid Permissions", JOptionPane.WARNING_MESSAGE);
-        });
-
-        //go to home screen when home button is pressed
-        a5.addActionListener((actionEvent) -> {
-            cl.show(container, "login");
-        });
-
-        //set the default size of the hamburger menu
-        hbMenu.setPreferredSize(new Dimension(200, hbMenu.getPreferredSize().height));
-
-        //show the hamburger menu when the button is pressed
-        mockHamburger.addActionListener(e -> {
-            hbMenu.show(mockHamburger, 0, mockHamburger.getHeight());
-        });
-        mockHamburger.setAlignmentX(Component.LEFT_ALIGNMENT); //align the button to the left
-
-        //add hamburger button and title to the top tab
-        topTab.add(mockHamburger, BorderLayout.WEST);
-        topTab.add(currentPage, BorderLayout.CENTER);
-
-
+        topTab tTab = new topTab("Home", cl, container, this);
 
         //add placeholder for the history/summary panel to the bottom of page
         JPanel history = new JPanel();
@@ -268,12 +171,11 @@ public class HomeScreen extends JPanel{
         content.add(title);
         content.add(form);
 
-        //set size of top and bottom tabs
-        topTab.setPreferredSize(new Dimension(0, 60));
+        //set size bottom tab
         history.setPreferredSize(new Dimension(0, 100));
 
         //add 3 panels to the homescreen
-        add(topTab, BorderLayout.NORTH);
+        add(tTab, BorderLayout.NORTH);
         add(history, BorderLayout.SOUTH);
         add(content, BorderLayout.CENTER);
     }

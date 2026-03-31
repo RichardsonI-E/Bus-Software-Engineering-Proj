@@ -10,11 +10,13 @@ import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import javafx.embed.swing.JFXPanel;
+import screens.BManageScreen;
 import screens.HomeScreen;
 import screens.LoginScreen;
 import screens.MapScreen;
+import screens.SManageScreen;
 import screens.SettingsScreen;
-
+import screens.UManageScreen;
 /*This class serves as the main executable for our bus planning system.
 It utilizes a CardLayout to switch between tabs/screens that are defined in the screens package (with the
 exception of the disclaimer)
@@ -44,6 +46,12 @@ class StartInterface{
 
         SettingsScreen settingsScreen = new SettingsScreen(app, layout, container);
 
+        SManageScreen sManageScreen = new SManageScreen(app, layout, container);
+
+        BManageScreen bManageScreen = new BManageScreen(app, layout, container);
+
+        UManageScreen uManageScreen = new UManageScreen(app, layout, container);
+
         //JPanel sManageScreen = new JPanel();
         //creates a container to hold the screen for managers to manage stations(currently a placeholder)
         //JPanel bManageScreen = new JPanel();
@@ -55,8 +63,9 @@ class StartInterface{
         container.add(homeScreen, "home");
         container.add(mapScreen, "map");
         container.add(settingsScreen, "settings");
-        //container.add(sManageScreen, "smanage");
-        //container.add(bManageScreen, "bmanage");
+        container.add(sManageScreen, "sManage");
+        container.add(bManageScreen, "bManage");
+        container.add(uManageScreen, "uManage");
 
         app.add(container); //add the container to the JFrame
 

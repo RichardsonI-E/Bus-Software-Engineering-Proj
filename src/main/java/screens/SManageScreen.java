@@ -8,17 +8,18 @@ import javax.swing.JPanel;
 
 import components.topTab;
 
-public class SettingsScreen extends JPanel{
+
+public class SManageScreen extends JPanel{
     private CardLayout cl;
     private JPanel container;
 
-    public SettingsScreen(JFrame parent, CardLayout cl, JPanel container) {
+    public SManageScreen(JFrame parent, CardLayout cl, JPanel container) {
         this.cl = cl;
         this.container = container;
 
         setLayout(new BorderLayout());//set page layout as a borderlayout
 
-        topTab tTab = new topTab("Account Settings", cl, container, this);
+        topTab tTab = new topTab("Manage Stations", cl, container, this);
 
         add(tTab, BorderLayout.NORTH);
 }

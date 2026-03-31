@@ -86,11 +86,4 @@ public class Bus {
                 super(busID, make, model, tankSize, fuelBurnRate, fuelBurnRate);
             }
         }
-
-        //quick test of main class constructor
-    public static void main(String[] args) {
-        System.out.println("test test");
-        Bus bus = new Bus(1234, "Travel", "Cross-Road", 80, 10, 55);
-        System.out.println(bus.getBusId() + " " + bus.getMake() + " " + bus.getModel());
-    }
 }
