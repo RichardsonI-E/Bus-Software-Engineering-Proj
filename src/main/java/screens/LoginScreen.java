@@ -129,7 +129,7 @@ public class LoginScreen extends JPanel {
             /*
              * if(userIn.equalsIgnoreCase("Test")
              * && passIn.equalsIgnoreCase("Test")){
-             * 
+             *
              * }/*
              * /*
              * for (user i : users){
