@@ -1,27 +1,27 @@
-package main;
+package primary;
 
 import java.util.List;
-import java.util.Scanner;
 
 public class User {
-    //Imported Scanner as sc
-    static Scanner sc = new Scanner(System.in); //import scanner
 
     /* Attributes for the User superclass */
     private String name; //User's full name
     private String username; // User's unique username for login
     private String password; // User's password for authentication
+    private String perms;
 
     public User() {
         name = "John Smith";
         username = "SmithJ";
         password = "123abc";
+        perms = "basic";
     }
 
-    public User(String name, String username, String password) {
+    public User(String name, String username, String password, String perms) {
         this.name = name;
         this.username = username;
         this.password = password;
+        this.perms = perms;
     }
 
 /*----------------------------Setters and Getters for User superclass attributes---------------------------- */
@@ -37,6 +37,10 @@ public class User {
         return password;
     }
 
+    public String getPerms(){
+        return perms;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -47,6 +51,10 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setPerms(String perms){
+        this.perms = perms;
     }
 
 /*  ----------------------------User methods---------------------------- */
@@ -187,7 +195,7 @@ public class User {
         }
 
         public stationManager(String name, String username, String password) {
-            super(name, username, password);
+            super(name, username, password, perms);
         }
         /* Getter and Setter for sManagerID */
         public int getSManagerID() {
@@ -261,92 +269,6 @@ public class User {
                     //break
                 //else:
                     //System print: Invalid station name. Please try again.
-        //}
-    }
-
-
-/* Subclass for bus manager(s) that extends User */
-    public class busManager extends User {
-        private int bManagerID; //Unique identifier for bus manager
-        // public Bus[] busList; //List of buses managed by bus manager
-        public busManager() {
-        }
-        public busManager(String name, String username, String password) {
-            super(name, username, password);
-        }
-        /* Getter and Setter for bManagerID */
-        public int getBManagerID() {
-            return bManagerID;
-        }
-        public void setBManagerID(int bManagerID) {
-            this.bManagerID = bManagerID;
-        }
-/*  ----------------------------BusManager methods---------------------------- */
-        //private void addBus(){
-            //System print: Input bus make
-            //Scanner equals new Scanner: bMake
-
-            //System print: Input bus model
-            //Scanner equals new Scanner: bModel
-
-            //System print: Input bus tank size
-            //Scanner equals new Scanner: bTankSize
-
-            //System print: Input bus' fuel burn rate
-            //Scanner equals new Scanner: bFuelBurnRate
-
-            //System print: Input bus' cruise speed
-            //Scanner equals new Scanner: bCruiseSpeed
-
-            //busList.add(new Bus(bMake, bModel, bTankSize, bFuelBurnRate, bCruiseSpeed))
-        //}
-
-        //private void removeBus(){
-            //System print: Input bus make or ID
-            //Scanner equals new Scanner: bnameID
-
-            //for (bus in busList):
-                //if bnameID equals bus.getMake() || bnameID equals String.valueOf(bus.getBusID()):
-                    //busList.remove(bus)
-                    //break
-                //else:
-                    //System print: Invalid bus name. Please try again.
-        //}
-
-        //private void updateBus(){
-            //System print: Input bus make or ID
-            //Scanner equals new Scanner: bnameID
-
-            //for (bus in busList):
-                //if bnameID equals bus.getMake() || bnameID equals String.valueOf(bus.getBusID()):
-                    //System print: Input new bus name (or press enter to keep current name)
-                    //Scanner equals new Scanner: newBName
-                    //if newBName is not empty:
-                        //bus.setMake(newBName)
-
-                    //System print: Input new bus tank size (or press enter to keep current tank size)
-                    //Scanner equals new Scanner: newBTankSize
-                    //if newBTankSize is not empty:
-                        //bus.setTankSize(newBTankSize)
-                //else:
-                    //System print: Invalid bus name. Please try again.
-        //}
-
-        //private void viewBuses(){
-            //for (bus in busList):
-                //System print: bus.getMake() + " - Model: " + bus.getModel() + ", Tank Size: " + bus.getTankSize() + ", Fuel Burn Rate: " + bus.getFuelBurnRate() + ", Cruise Speed: " + bus.getCruiseSpeed()
-        //}
-
-        //private void viewBus(){
-            //System print: Input bus make or ID
-            //Scanner equals new Scanner: bnameID
-
-            //for (bus in busList):
-                //if bnameID equals bus.getMake() || bnameID equals String.valueOf(bus.getBusID()):
-                    //System print: bus.getMake() + " - Model: " + bus.getModel() + ", Tank Size: " + bus.getTankSize() + ", Fuel Burn Rate: " + bus.getFuelBurnRate() + ", Cruise Speed: " + bus.getCruiseSpeed()
-                    //break
-                //else:
-                    //System print: Invalid bus name. Please try again.
         //}
     }
 }

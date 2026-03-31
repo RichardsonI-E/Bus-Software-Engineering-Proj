@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -57,7 +58,7 @@ public class HomeScreen extends JPanel{
         currentPage.setHorizontalAlignment(JLabel.CENTER);
 
         //creates an image for the hamburger icon (text does not work properly) and sets its proper size
-        ImageIcon hamburger = new ImageIcon("resources/Hamburger_icon.png");
+        ImageIcon hamburger = new ImageIcon(getClass().getClassLoader().getResource(("Hamburger_icon.png")));
         Image scaled = hamburger.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
         ImageIcon scaledHamburger = new ImageIcon(scaled);
 
@@ -96,6 +97,15 @@ public class HomeScreen extends JPanel{
         hbMenu.add(a4);
         hbMenu.add(a5);
 
+
+        a1.addActionListener((actionEvent) -> {
+            cl.show(container, "map");
+        });
+
+        a2.addActionListener((actionEvent) -> {
+            cl.show(container, "settings");
+        });
+
         //if manage Stations/Buttons is pressed, display a warning that the user does not have permission to view the page
         a3.addActionListener(e ->{
             JOptionPane.showMessageDialog(this,
@@ -109,9 +119,11 @@ public class HomeScreen extends JPanel{
                 "Invalid Permissions", JOptionPane.WARNING_MESSAGE);
         });
 
+        //go to home screen when home button is pressed
         a5.addActionListener((actionEvent) -> {
             cl.show(container, "login");
         });
+
         //set the default size of the hamburger menu
         hbMenu.setPreferredSize(new Dimension(200, hbMenu.getPreferredSize().height));
 
@@ -145,6 +157,7 @@ public class HomeScreen extends JPanel{
 
         //title for the main content panel
         JLabel title = new JLabel("Create a new Route");
+        title.setAlignmentX(CENTER_ALIGNMENT);
         title.setFont(subTitle);
 
         //add main form to the content panel, setting layout to gridbag

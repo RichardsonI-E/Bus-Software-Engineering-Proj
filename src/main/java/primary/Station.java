@@ -1,4 +1,4 @@
-package main;
+package primary;
 
 public class Station{
     //Declare private Attributes
