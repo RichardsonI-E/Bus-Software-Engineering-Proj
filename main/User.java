@@ -1,10 +1,9 @@
-import java.util.ArrayList;
+package main;
+
 import java.util.List;
 import java.util.Scanner;
 
 public class User {
-    //Created Arraylist for users
-    List<User> users = new ArrayList<>();
     //Imported Scanner as sc
     static Scanner sc = new Scanner(System.in); //import scanner
 
