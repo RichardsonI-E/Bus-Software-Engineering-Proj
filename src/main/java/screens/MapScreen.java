@@ -84,7 +84,7 @@ public class MapScreen extends JPanel {
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/leaflet.css"/>
                 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
                 <style>
-                    html, body, #map { margin:0; padding:0; width:100%; height:100%; }
+                    html, body, #map { margin:0; padding:0; width:100%%; height:100%%; }
                 </style>
             </head>
             <body>
@@ -92,13 +92,14 @@ public class MapScreen extends JPanel {
                 <script>
                     function initMap() {
                         var map = L.map('map').setView([34.0, -81.0], 100);
+
                         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                             attribution: 'Map data © OpenStreetMap'
                         }).addTo(map);
 
-                        %s
-
                         L.marker([34.0, -81.0]).addTo(map).bindPopup("default");
+
+                        %s
 
                         // Handle resizing after panel shows
                         window.addEventListener('resize', () => map.invalidateSize());
