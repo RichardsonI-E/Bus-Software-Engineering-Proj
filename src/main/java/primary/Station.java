@@ -48,8 +48,10 @@ public class Station{
         }
     }
     public class RefuelStation extends Station{
-        public RefuelStation(String name, float longitude, float latitude){
+        private String fuelType;
+        public RefuelStation(String name, float longitude, float latitude,String fuelType){
             super(name, longitude, latitude);
+            this.fuelType = fuelType;
         }
         //Method for refueling a bus.
         public void refuelBus(Bus bus){

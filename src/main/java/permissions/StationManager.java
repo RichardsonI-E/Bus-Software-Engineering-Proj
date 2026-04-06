@@ -16,7 +16,7 @@ public class StationManager extends User{
     private StationManager(){}; //default constructor
 
     public StationManager(String name, String username, String password, String perms) {
-            super(name, username, password, "busManager");
+            super(name, username, password, "stationManager");
     }
 
     public static StationManager getInstance(){

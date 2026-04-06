@@ -10,6 +10,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -218,8 +219,8 @@ public class LoginScreen extends JPanel {
 
                             // create and set custom username for user (tbd: create code if created username
                             // matches one in records)
-                            String usernamef = lastNamef +
-                                    (firstNamef.isEmpty() ? "" : firstNamef.substring(0, 1).toUpperCase());
+                            String usernamef = lastNamef.toLowerCase() +
+                                    (firstNamef.isEmpty() ? "" : firstNamef.substring(0, 1).toLowerCase());
                             User newU = new User();
 
                             // set the new user's full name, username and password
@@ -232,7 +233,7 @@ public class LoginScreen extends JPanel {
                             Admin.getUsers();
                             for (int l = 0; l < Admin.getUsers().size(); l++) {
                                 if (Admin.getUsers().get(l).getUsername().equalsIgnoreCase(usernamef)) {
-                                    usernamef = usernamef + 1;
+                                    usernamef = usernamef + ThreadLocalRandom.current().nextInt(1, 10000);
                                 }
                             }
                             newU.setUsername(usernamef);
