@@ -1,1 +1,1 @@
-[{"name": "Test Station", "latitude": 34.0, "longitude": -81.0}]
+[{"type":"refuel","fuelType":["Diesel"],"name":"Test2","longitude":88.0,"latitude":34.0}]

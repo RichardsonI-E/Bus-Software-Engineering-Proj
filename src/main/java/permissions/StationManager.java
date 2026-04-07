@@ -31,4 +31,36 @@ public class StationManager extends User{
         stations.add(bus);
         JsonUtilities.saveStations(stations);
     }
+
+    public static void deleteStation(Station station){
+        for (int i = 0; i < stations.size(); i++) {
+            if (stations.get(i).getName().equals(station.getName())) {
+                stations.remove(i);
+                break;
+            }
+        }
+        JsonUtilities.saveStations(stations);
+    }
+
+    public static void updateStation(Station updatedStation) {
+        for (int i = 0; i < stations.size(); i++) {
+            if (stations.get(i).getName().equals(updatedStation.getName())) {
+                stations.set(i, updatedStation);
+                break;
+            }
+        }
+
+        JsonUtilities.saveStations(stations);
+    }
+
+    public static void updateStation(Station updatedStation, String ogStationname) {
+        for (int i = 0; i < stations.size(); i++) {
+            if (stations.get(i).getName().equals(ogStationname)) {
+                stations.set(i, updatedStation);
+                break;
+            }
+        }
+
+        JsonUtilities.saveStations(stations);
+    }
 }

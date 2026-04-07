@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import primary.Bus;
@@ -30,11 +31,12 @@ public class JsonUtilities {
 
     // method to load stations from "stations.json"
     public static List<Station> loadStations() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Station.class, new StationDeserialize())
+                .create();
 
         try (FileReader reader = new FileReader("src/main/java/json/stations.json")) {
-            return gson.fromJson(reader, new TypeToken<List<Station>>() {
-            }.getType());
+            return gson.fromJson(reader, new TypeToken<List<Station>>() {}.getType());
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -89,3 +91,4 @@ public class JsonUtilities {
         }
     }
 }
+
