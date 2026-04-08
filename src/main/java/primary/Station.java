@@ -1,5 +1,7 @@
 package primary;
 
+import java.util.ArrayList;
+
 public abstract class Station {
 
     //Declare private Attributes
@@ -50,11 +52,12 @@ public abstract class Station {
     }
 
     /*----------------- Station Subclass -----------------*/
-    public class BusStation extends Station {
-        private String type = "bus";
-        public BusStation(String name, float longitude, float latitude, String type) {
+    public static class BusStation extends Station {
+        private String type;
+
+        public BusStation(String name, float longitude, float latitude) {
             super(name, longitude, latitude);
-            this.type = type;
+            this.type = "bus";
         }
         @Override
         public String getType() {
@@ -62,21 +65,21 @@ public abstract class Station {
         }
     }
 
-    public class RefuelStation extends Station {
-        private String type = "refuel";
-        private String[] fuelType;
+    public static class RefuelStation extends Station {
+        private String type ;
+        private ArrayList<String> fuelType;
 
-        public RefuelStation(String name, float longitude, float latitude, String type, String[] fuelType) {
+        public RefuelStation(String name, float longitude, float latitude, ArrayList<String> fuelType) {
             super(name, longitude, latitude);
-            this.type = type;
+            this.type = "refuel";
             this.fuelType = fuelType;
         }
 
-        public void setFuelTypes(String[] fuelType) {
+        public void setFuelTypes(ArrayList<String> fuelType) {
             this.fuelType = fuelType;
         }
 
-        public String[] getFuelType() {
+        public ArrayList<String> getFuelType() {
             return fuelType;
         }
 

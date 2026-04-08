@@ -23,12 +23,13 @@ public class StationDeserialize implements JsonDeserializer<Station> {
             String type = obj.get("type").getAsString();
 
             switch (type) {
-                case "bus":
+                case "bus" -> {
                     return context.deserialize(obj, BusStation.class);
-                case "refuel":
+                }
+                case "refuel" -> {
                     return context.deserialize(obj, RefuelStation.class);
-                default:
-                    throw new JsonParseException("Unknown station type: " + type);
+                }
+                default -> throw new JsonParseException("Unknown station type: " + type);
             }
         }
     }

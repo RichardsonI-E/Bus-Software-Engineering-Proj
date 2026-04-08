@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -54,7 +55,7 @@ public class SManageScreen extends JPanel {
     JRadioButton busType = new JRadioButton("Bus");
     JRadioButton refuelType = new JRadioButton("Refuel", true);
 
-    JCheckBox unleaded = new JCheckBox("Unleaded",true);
+    JCheckBox unleaded = new JCheckBox("Unleaded", true);
     JCheckBox diesel = new JCheckBox("Diesel", true);
 
     //add a selected station for manager to update or delete
@@ -188,25 +189,25 @@ public class SManageScreen extends JPanel {
                     latitude.setText(latitudeV);
                     longitude.setText(longitudeV);
 
-                    if(typeV.equals("bus")){
+                    if (typeV.equals("bus")) {
                         busType.setSelected(true);
                         refuelType.setSelected(false);
                         fuelHolder.setVisible(false);
-                    }else{
+                    } else {
                         busType.setSelected(false);
                         refuelType.setSelected(true);
                         fuelHolder.setVisible(true);
                         String[] fuelsV = model.getValueAt(row, 4).toString()
-                            .replace(",", "").split(" ");
+                                .replace(",", "").split(" ");
 
                         unleaded.setSelected(false);
                         diesel.setSelected(false);
 
-                        for (String i : fuelsV){
-                            if(i.equals("Unleaded")){
+                        for (String i : fuelsV) {
+                            if (i.equals("Unleaded")) {
                                 unleaded.setSelected(true);
                             }
-                            if(i.equals("Diesel")){
+                            if (i.equals("Diesel")) {
                                 diesel.setSelected(true);
                             }
                         }
@@ -237,50 +238,99 @@ public class SManageScreen extends JPanel {
         //add listener for update button
         update.addActionListener(e -> {
             if (selected != null) {
-                if (selected.getType().equals("bus")) {
-                    BusStation selectedStation = (BusStation) selected;
+                if (busType.isSelected()) {
                     String ogName = selected.getName();
 
-                    selectedStation.setName(name.getText());
-                    selectedStation.setLatitude(Float.parseFloat(latitude.getText()));
-                    selectedStation.setLongitude(Float.parseFloat(longitude.getText()));
+                    BusStation newS = new BusStation(
+                            name.getText(),
+                            Float.parseFloat(latitude.getText()),
+                            Float.parseFloat(longitude.getText())
+                    );
 
-                    if (ogName.equals(selectedStation.getName())) {
-                        StationManager.updateStation(selectedStation);
+                    if (ogName.equals(newS.getName())) {
+                        StationManager.updateStation(newS);
                     } else {
-                        StationManager.updateStation(selectedStation, ogName);
+                        StationManager.updateStation(newS, ogName);
                     }
-                } else if (selected.getType().equals("refuel")) {
-                    RefuelStation selectedStation = (RefuelStation) selected;
+                } else {
                     String ogName = selected.getName();
-                    // String[] fuels = combobox.getSelected
+                    
+                    ArrayList<String> fuels = new ArrayList<>();
+                    if (diesel.isSelected()) {
+                        fuels.add("diesel");
+                    }
+                    if (unleaded.isSelected()) {
+                        fuels.add("unleaded");
+                    }
 
-                    selectedStation.setName(name.getText());
-                    selectedStation.setLatitude(Float.parseFloat(latitude.getText()));
-                    selectedStation.setLongitude(Float.parseFloat(longitude.getText()));
+                    RefuelStation newS = new RefuelStation(
+                            name.getText(),
+                            Float.parseFloat(latitude.getText()),
+                            Float.parseFloat(longitude.getText()),
+                            fuels
+                    );
 
-                    if (ogName.equals(selectedStation.getName())) {
-                        StationManager.updateStation(selectedStation);
+                    if (ogName.equals(newS.getName())) {
+                        StationManager.updateStation(newS);
                     } else {
-                        StationManager.updateStation(selectedStation, ogName);
+                        StationManager.updateStation(newS, ogName);
+                    }
+                }
+            } else {
+                if (!name.getText().isEmpty() && !latitude.getText().isEmpty() && !longitude.getText().isEmpty()) {
+                    if (busType.isSelected()) {
+
+                        BusStation newS = new BusStation(
+                                name.getText(),
+                                Float.parseFloat(latitude.getText()),
+                                Float.parseFloat(longitude.getText())
+                        );
+
+                        StationManager.addStation(newS);
+                    } else {
+
+                        ArrayList<String> fuels = new ArrayList<>();
+                        if (diesel.isSelected()) {
+                            fuels.add("diesel");
+                        }
+                        if (unleaded.isSelected()) {
+                            fuels.add("unleaded");
+                        }
+
+                        RefuelStation newS = new RefuelStation(
+                                name.getText(),
+                                Float.parseFloat(latitude.getText()),
+                                Float.parseFloat(longitude.getText()),
+                                fuels
+                        );
+
+                        StationManager.addStation(newS);
                     }
                 }
             }
+            clearForm();
+            initTable(model);
+            form.revalidate();
+            form.repaint();
         });
 
         //add listener for delete button
         delete.addActionListener(e -> {
-            int response = JOptionPane.showConfirmDialog(null,
-                    "Are you sure you want to delete this account? This action cannot be undone.",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-            if (response == JOptionPane.YES_OPTION) {
-                StationManager.deleteStation(selected);
-                selected = null;
-                clearForm();
-                initTable(model);
-            } else {
-                //do nothing, pane will close
+            if (selected != null) {
+                int response = JOptionPane.showConfirmDialog(null,
+                        "Are you sure you want to delete this account? This action cannot be undone.",
+                        "Confirm Deletion",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (response == JOptionPane.YES_OPTION) {
+                    StationManager.deleteStation(selected);
+                    selected = null;
+                    clearForm();
+                    initTable(model);
+                    form.revalidate();
+                    form.repaint();
+                } else {
+                    //do nothing, pane will close
+                }
             }
         });
 

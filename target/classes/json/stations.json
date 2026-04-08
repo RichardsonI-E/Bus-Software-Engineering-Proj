@@ -1,1 +1,1 @@
-[{"type":"refuel","fuelType":["Diesel"],"name":"Test2","longitude":88.0,"latitude":34.0}]
+[{"type":"refuel","fuelType":["unleaded"],"name":"newone","longitude":112.4,"latitude":55.2},{"type":"bus","name":"fifty","longitude":56.7,"latitude":12.22},{"type":"refuel","fuelType":["diesel"],"name":"twelve","longitude":12.0,"latitude":55.9}]
