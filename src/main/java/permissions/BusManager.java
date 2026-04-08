@@ -7,15 +7,29 @@ import primary.Bus;
 import primary.User;
 
 public class BusManager extends User {
-    // Created Arraylist for buses
+    private static BusManager instance = new BusManager();
+    //Created Arraylist for buses
     private static List<Bus> buses = JsonUtilities.loadBuses();
-
-    /* Subclass for bus manager(s) that extends User */
-    public BusManager() {
-    }
+    
+    private BusManager(){}; //default constructor
 
     public BusManager(String name, String username, String password, String perms) {
-        super(name, username, password, "busManager");
+            super(name, username, password, "busManager");
+    }
+
+    public static BusManager getInstance(){
+        return instance;
+    }
+
+    public static List<Bus> getBuses(){
+        return buses;
+    }
+
+    public static Bus getBusByID(int id){
+        for (Bus s : buses){
+            if(s.getBusID() == id) return s;
+        }
+        return null;
     }
 
     public static void addBus(Bus bus) {
@@ -23,60 +37,24 @@ public class BusManager extends User {
         JsonUtilities.saveBuses(buses);
     }
 
-    /* ----------------------------BusManager methods---------------------------- */
-    // private void removeBus(){
-    // System print: Input bus make or ID
-    // Scanner equals new Scanner: bnameID
+    public static void deleteBus(Bus station){
+        for (int i = 0; i < buses.size(); i++) {
+            if (buses.get(i).getBusID() == (station.getBusID())) {
+                buses.remove(i);
+                break;
+            }
+        }
+        JsonUtilities.saveBuses(buses);
+    }
 
-    // for (bus in busList):
-    // if bnameID equals bus.getMake() || bnameID equals
-    // String.valueOf(bus.getBusID()):
-    // busList.remove(bus)
-    // break
-    // else:
-    // System print: Invalid bus name. Please try again.
-    // }
+    public static void updateBus(Bus updatedBus) {
+        for (int i = 0; i < buses.size(); i++) {
+            if (buses.get(i).getBusID() == (updatedBus.getBusID())) {
+                buses.set(i, updatedBus);
+                break;
+            }
+        }
 
-    // private void updateBus(){
-    // System print: Input bus make or ID
-    // Scanner equals new Scanner: bnameID
-
-    // for (bus in busList):
-    // if bnameID equals bus.getMake() || bnameID equals
-    // String.valueOf(bus.getBusID()):
-    // System print: Input new bus name (or press enter to keep current name)
-    // Scanner equals new Scanner: newBName
-    // if newBName is not empty:
-    // bus.setMake(newBName)
-
-    // System print: Input new bus tank size (or press enter to keep current tank
-    // size)
-    // Scanner equals new Scanner: newBTankSize
-    // if newBTankSize is not empty:
-    // bus.setTankSize(newBTankSize)
-    // else:
-    // System print: Invalid bus name. Please try again.
-    // }
-
-    // private void viewBuses(){
-    // for (bus in busList):
-    // System print: bus.getMake() + " - Model: " + bus.getModel() + ", Tank Size: "
-    // + bus.getTankSize() + ", Fuel Burn Rate: " + bus.getFuelBurnRate() + ",
-    // Cruise Speed: " + bus.getCruiseSpeed()
-    // }
-
-    // private void viewBus(){
-    // System print: Input bus make or ID
-    // Scanner equals new Scanner: bnameID
-
-    // for (bus in busList):
-    // if bnameID equals bus.getMake() || bnameID equals
-    // String.valueOf(bus.getBusID()):
-    // System print: bus.getMake() + " - Model: " + bus.getModel() + ", Tank Size: "
-    // + bus.getTankSize() + ", Fuel Burn Rate: " + bus.getFuelBurnRate() + ",
-    // Cruise Speed: " + bus.getCruiseSpeed()
-    // break
-    // else:
-    // System print: Invalid bus name. Please try again.
-    // }
+        JsonUtilities.saveBuses(buses);
+    }
 }

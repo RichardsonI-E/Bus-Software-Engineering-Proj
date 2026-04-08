@@ -80,7 +80,9 @@ public class JsonUtilities {
 
     // method to load stations from "buses.json"
     public static List<Bus> loadBuses() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Bus.class, new BusDeserialize())
+                .create();
 
         try (FileReader reader = new FileReader("src/main/java/json/buses.json")) {
             return gson.fromJson(reader, new TypeToken<List<Bus>>() {

@@ -1,1 +1,1 @@
-[{"type":"refuel","fuelType":["unleaded"],"name":"newone","longitude":112.4,"latitude":55.2},{"type":"bus","name":"fifty","longitude":56.7,"latitude":12.22},{"type":"refuel","fuelType":["diesel"],"name":"twelve","longitude":12.0,"latitude":55.9},{"type":"refuel","fuelType":["diesel","unleaded"],"name":"no","longitude":321.0,"latitude":223.0}]
+[{"type":"refuel","fuelType":["diesel","unleaded"],"name":"new","longitude":44.0,"latitude":72.0,"ID":490616},{"type":"bus","name":"fifty","longitude":12.0,"latitude":56.0,"ID":207046}]

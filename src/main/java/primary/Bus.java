@@ -1,13 +1,9 @@
 package primary;
 
-import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 
-public class Bus {
-
-    //Imported Scanner as sc
-    Scanner sc = new Scanner(System.in);
+public abstract class Bus {
     
-
     //Declaring Attributes
     private int busID; //ID number of Bus
     private String make; //Make of the Bus
@@ -16,9 +12,12 @@ public class Bus {
     private float fuelBurnRate; //Fuel burn rate in MPG
     private float cruiseSpeed; // Most effiecent speed
 
+    //abstract attribute to determine if bus takes diesel or unleaded
+    public abstract String getFuel();
+
     //Declare Constructor for Bus Class
-    public Bus(int busID, String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
-        this.busID = busID;
+    public Bus(String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
+        this.busID = ThreadLocalRandom.current().nextInt(1, 1000000);
         this.make = make;
         this.model = model;
         this.tankSize = tankSize;
@@ -30,7 +29,7 @@ public class Bus {
         public void setBusID(int busID){
             this.busID = busID;
         }
-        public int getBusId(){
+        public int getBusID(){
             return busID;
         }
 
@@ -75,15 +74,27 @@ public class Bus {
         }
 
         /*-------------------- Declare Subclass ----------------------*/
-        public class CityBus extends Bus{
-            public CityBus(int busID, String make, String model, float tankSize, float fuelBurnRate){
-                super(busID, make, model, tankSize, fuelBurnRate, cruiseSpeed);
+        public static class CityBus extends Bus{
+            private String fuelType;
+            public CityBus(String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
+                super(make, model, tankSize, fuelBurnRate, cruiseSpeed);
+                this.fuelType = "unleaded";
+            }
+            @Override
+            public String getFuel() {
+            return "unleaded";
             }
         }
 
-        public class LongDisBus extends Bus{
-            public LongDisBus(int busID, String make, String model, float tankSize, float fuelBurnRate){
-                super(busID, make, model, tankSize, fuelBurnRate, fuelBurnRate);
+        public static class LongDisBus extends Bus{
+            private String fuelType;
+            public LongDisBus(String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
+                super(make, model, tankSize, fuelBurnRate, cruiseSpeed);
+                this.fuelType = "diesel";
+            }
+            @Override
+            public String getFuel() {
+            return "diesel";
             }
         }
 }

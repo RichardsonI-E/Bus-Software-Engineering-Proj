@@ -1,6 +1,7 @@
 package primary;
 
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class Station {
 
@@ -8,9 +9,11 @@ public abstract class Station {
     private String name; //Name Attribute of Station
     private float longitude; //Longitude Attribute for location
     private float latitude; //Latitude Attribute for location
+    private int ID; //attribute to assign unique IDs to buses
 
     //abstract attribute to determine if station is bus or refuel
     public abstract String getType();
+    
 
     //Declare empty constructor
     public Station() {
@@ -24,6 +27,7 @@ public abstract class Station {
         this.name = name;
         this.longitude = longitude;
         this.latitude = latitude;
+        this.ID = ThreadLocalRandom.current().nextInt(1, 1000000);
     }
 
     /*----------------- Setters and Getters for Attributes -----------------*/
@@ -51,6 +55,13 @@ public abstract class Station {
         return latitude;
     }
 
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
+    }
     /*----------------- Station Subclass -----------------*/
     public static class BusStation extends Station {
         private String type;
@@ -92,7 +103,7 @@ public abstract class Station {
         public void refuelBus(Bus bus) {
             //Do we want to incorporate the get bus id from the bus class.
             //add code that 'resets' the max range of the given bus to full
-            System.out.println("Bus has been refueled. \n Bus ID: " + bus.getBusId());
+            System.out.println("Bus has been refueled. \n Bus ID: " + bus.getBusID());
         }
     }
 }

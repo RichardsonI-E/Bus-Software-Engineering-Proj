@@ -27,6 +27,13 @@ public class StationManager extends User{
         return stations;
     }
 
+    public static Station getStationByID(int id){
+        for (Station s: stations){
+            if(s.getID() == id) return s;
+        }
+        return null;
+    }
+
     public static void addStation(Station bus) {
         stations.add(bus);
         JsonUtilities.saveStations(stations);
@@ -34,7 +41,7 @@ public class StationManager extends User{
 
     public static void deleteStation(Station station){
         for (int i = 0; i < stations.size(); i++) {
-            if (stations.get(i).getName().equals(station.getName())) {
+            if (stations.get(i).getID() == (station.getID())) {
                 stations.remove(i);
                 break;
             }
@@ -44,18 +51,7 @@ public class StationManager extends User{
 
     public static void updateStation(Station updatedStation) {
         for (int i = 0; i < stations.size(); i++) {
-            if (stations.get(i).getName().equals(updatedStation.getName())) {
-                stations.set(i, updatedStation);
-                break;
-            }
-        }
-
-        JsonUtilities.saveStations(stations);
-    }
-
-    public static void updateStation(Station updatedStation, String ogStationname) {
-        for (int i = 0; i < stations.size(); i++) {
-            if (stations.get(i).getName().equals(ogStationname)) {
+            if (stations.get(i).getID() == (updatedStation.getID())) {
                 stations.set(i, updatedStation);
                 break;
             }

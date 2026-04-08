@@ -44,7 +44,6 @@ public class SManageScreen extends JPanel {
     private JPanel container;
 
     JPanel fuelHolder = new JPanel();
-    int rowAdd = 0;
 
     NumberFormat num = NumberFormat.getNumberInstance();
 
@@ -69,6 +68,7 @@ public class SManageScreen extends JPanel {
         for (Station s : StationManager.getStations()) {
             if (s instanceof Station.BusStation) {
                 model.addRow(new Object[]{
+                    s.getID(),
                     s.getName(),
                     s.getLatitude(),
                     s.getLongitude(),
@@ -83,6 +83,7 @@ public class SManageScreen extends JPanel {
                     }
                 }
                 model.addRow(new Object[]{
+                    s.getID(),
                     s.getName(),
                     s.getLatitude(),
                     s.getLongitude(),
@@ -162,7 +163,7 @@ public class SManageScreen extends JPanel {
         delete.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
 
         //create table of StationManager.getStations() for manager to select
-        String[] col = {"Name", "Latitude", "Longitude",
+        String[] col = {"ID", "Name", "Latitude", "Longitude",
             "Station Type", "Supported Fuel(s)"};
 
         DefaultTableModel model = new DefaultTableModel(col, 0) {
@@ -183,6 +184,7 @@ public class SManageScreen extends JPanel {
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int row = table.getSelectedRow();
+                int id = (int) model.getValueAt(row, 0);
 
                 if (row != -1) {
                     String nameV = model.getValueAt(row, 0).toString();
@@ -217,7 +219,7 @@ public class SManageScreen extends JPanel {
                             }
                         }
                     }
-                    selected = StationManager.getStations().get(row);
+                    selected = StationManager.getStationByID(id);
                     form.revalidate();
                     form.repaint();
                 }
@@ -244,21 +246,15 @@ public class SManageScreen extends JPanel {
         update.addActionListener(e -> {
             if (selected != null) {
                 if (busType.isSelected()) {
-                    String ogName = selected.getName();
-
                     BusStation newS = new BusStation(
                             name.getText(),
                             Float.parseFloat(latitude.getText()),
                             Float.parseFloat(longitude.getText())
                     );
+                    newS.setID(selected.getID());
 
-                    if (ogName.equals(newS.getName())) {
-                        StationManager.updateStation(newS);
-                    } else {
-                        StationManager.updateStation(newS, ogName);
-                    }
+                    StationManager.updateStation(newS);
                 } else {
-                    String ogName = selected.getName();
                     
                     ArrayList<String> fuels = new ArrayList<>();
                     if (diesel.isSelected()) {
@@ -275,11 +271,8 @@ public class SManageScreen extends JPanel {
                             fuels
                     );
 
-                    if (ogName.equals(newS.getName())) {
-                        StationManager.updateStation(newS);
-                    } else {
-                        StationManager.updateStation(newS, ogName);
-                    }
+                    newS.setID(selected.getID());
+                    StationManager.updateStation(newS);
                 }
             } else {
                 if (!name.getText().isEmpty() && !latitude.getText().isEmpty() && !longitude.getText().isEmpty()) {
