@@ -36,6 +36,8 @@ import primary.Station;
 import primary.Station.BusStation;
 import primary.Station.RefuelStation;
 
+// 24.5°N to 71.4°N latitude and 66.9°W to 172.5°E longitude
+
 public class SManageScreen extends JPanel {
 
     private CardLayout cl;
@@ -74,8 +76,11 @@ public class SManageScreen extends JPanel {
                 });
             } else if (s instanceof Station.RefuelStation r) {
                 StringBuilder fuelTypes = new StringBuilder();
-                for (String x : r.getFuelType()) {
-                    fuelTypes.append(x).append(", ");
+                for (int x = 0; x < r.getFuelType().size(); x++) {
+                    fuelTypes.append(r.getFuelType().get(x));
+                    if(x != r.getFuelType().size() - 1){
+                        fuelTypes.append(", ");
+                    }
                 }
                 model.addRow(new Object[]{
                     s.getName(),
