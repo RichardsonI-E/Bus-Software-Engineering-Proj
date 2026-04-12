@@ -2,6 +2,8 @@ package permissions;
 
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import json.JsonUtilities;
 import primary.Station;
 import primary.User;
@@ -34,8 +36,29 @@ public class StationManager extends User{
         return null;
     }
 
-    public static void addStation(Station bus) {
-        stations.add(bus);
+    public static Station getStationByName(String name){
+        for (Station s: stations){
+            if(s.getName().equals(name)) return s;
+        }
+        return null;
+    }
+
+    public static void addStation(Station newStation){
+        boolean free = true;
+        
+        for (Station s: stations){
+            if(s.getName().equals(newStation.getName())){
+                free = false;
+            }
+        }
+
+        if(free){
+            stations.add(newStation);
+        }else{
+            JOptionPane.showMessageDialog(null,
+            "A station already exists by that name. Please use a new name or alter the existing station",
+            "Name Taken", JOptionPane.WARNING_MESSAGE);
+        }
         JsonUtilities.saveStations(stations);
     }
 

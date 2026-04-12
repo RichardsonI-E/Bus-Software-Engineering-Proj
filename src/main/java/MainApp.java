@@ -11,6 +11,7 @@ import javax.swing.Timer;
 
 import javafx.embed.swing.JFXPanel;
 import screens.BManageScreen;
+import screens.FinalScreen;
 import screens.HomeScreen;
 import screens.LoginScreen;
 import screens.MapScreen;
@@ -52,6 +53,8 @@ class StartInterface{
 
         UManageScreen uManageScreen = new UManageScreen(app, layout, container);
 
+        FinalScreen finalScreen = new FinalScreen(app, layout, container);
+
         //JPanel sManageScreen = new JPanel();
         //creates a container to hold the screen for managers to manage stations(currently a placeholder)
         //JPanel bManageScreen = new JPanel();
@@ -66,6 +69,7 @@ class StartInterface{
         container.add(sManageScreen, "sManage");
         container.add(bManageScreen, "bManage");
         container.add(uManageScreen, "uManage");
+        container.add(finalScreen, "final");
 
         app.add(container); //add the container to the JFrame
 

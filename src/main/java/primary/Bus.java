@@ -10,7 +10,7 @@ public abstract class Bus {
     private String model; //Model of Bus
     private float tankSize; //Size of Tank in gallons
     private float fuelBurnRate; //Fuel burn rate in MPG
-    private float cruiseSpeed; // Most effiecent speed
+    private float cruiseSpeed; // Most effiecent speed (miles per hour)
 
     //abstract attribute to determine if bus takes diesel or unleaded
     public abstract String getFuel();
@@ -71,6 +71,11 @@ public abstract class Bus {
         }
         public float getCruiseSpeed(){
             return cruiseSpeed;
+        }
+
+        //calculate bus' max range
+        public float calcMaxRange(){
+            return tankSize/fuelBurnRate;
         }
 
         /*-------------------- Declare Subclass ----------------------*/

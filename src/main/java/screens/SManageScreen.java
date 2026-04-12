@@ -62,6 +62,24 @@ public class SManageScreen extends JPanel {
     //add a selected station for manager to update or delete
     Station selected = null;
 
+    private float verifyLat(float x){
+        if(x > 71.4){
+            x = (float) 71.4;
+        }else if (x < 24.5){
+            x = (float) 24.5;
+        }
+        return x;
+    }
+
+    private float verifyLong(float x){
+        if(x > 172.5){
+            x = (float) 172.5;
+        }else if (x < 66.9){
+            x = (float) 66.9;
+        }
+        return x;
+    }
+
     private void initTable(DefaultTableModel model) {
         model.setRowCount(0); // clear table
 
@@ -127,11 +145,11 @@ public class SManageScreen extends JPanel {
         nameTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
         name.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        JLabel latTxt = new JLabel("Latitude:");
+        JLabel latTxt = new JLabel("Latitude (between 24.5 and 71.4):");
         latTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
         latitude.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        JLabel longTxt = new JLabel("Longitude:");
+        JLabel longTxt = new JLabel("Longitude (between 66.9 and 172.5):");
         longTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
         longitude.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
@@ -187,10 +205,10 @@ public class SManageScreen extends JPanel {
                 int id = (int) model.getValueAt(row, 0);
 
                 if (row != -1) {
-                    String nameV = model.getValueAt(row, 0).toString();
-                    String latitudeV = model.getValueAt(row, 1).toString();
-                    String longitudeV = model.getValueAt(row, 2).toString();
-                    String typeV = model.getValueAt(row, 3).toString();
+                    String nameV = model.getValueAt(row, 1).toString();
+                    String latitudeV = model.getValueAt(row, 2).toString();
+                    String longitudeV = model.getValueAt(row, 3).toString();
+                    String typeV = model.getValueAt(row, 4).toString();
 
                     name.setText(nameV);
                     latitude.setText(latitudeV);
@@ -248,8 +266,8 @@ public class SManageScreen extends JPanel {
                 if (busType.isSelected()) {
                     BusStation newS = new BusStation(
                             name.getText(),
-                            Float.parseFloat(latitude.getText()),
-                            Float.parseFloat(longitude.getText())
+                            verifyLat(Float.parseFloat(latitude.getText())),
+                            verifyLong(Float.parseFloat(longitude.getText()))
                     );
                     newS.setID(selected.getID());
 
@@ -266,8 +284,8 @@ public class SManageScreen extends JPanel {
 
                     RefuelStation newS = new RefuelStation(
                             name.getText(),
-                            Float.parseFloat(latitude.getText()),
-                            Float.parseFloat(longitude.getText()),
+                            verifyLat(Float.parseFloat(latitude.getText())),
+                            verifyLong(Float.parseFloat(longitude.getText())),
                             fuels
                     );
 
@@ -280,8 +298,8 @@ public class SManageScreen extends JPanel {
 
                         BusStation newS = new BusStation(
                                 name.getText(),
-                                Float.parseFloat(latitude.getText()),
-                                Float.parseFloat(longitude.getText())
+                                verifyLat(Float.parseFloat(latitude.getText())),
+                                verifyLong(Float.parseFloat(longitude.getText()))
                         );
 
                         StationManager.addStation(newS);
@@ -297,8 +315,8 @@ public class SManageScreen extends JPanel {
 
                         RefuelStation newS = new RefuelStation(
                                 name.getText(),
-                                Float.parseFloat(latitude.getText()),
-                                Float.parseFloat(longitude.getText()),
+                                verifyLat(Float.parseFloat(latitude.getText())),
+                                verifyLong(Float.parseFloat(longitude.getText())),
                                 fuels
                         );
 
