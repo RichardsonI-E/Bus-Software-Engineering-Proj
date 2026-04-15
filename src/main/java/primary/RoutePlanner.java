@@ -18,13 +18,6 @@ public class RoutePlanner {
             Station start = stations.get(i);
             Station end = stations.get(i + 1);
 
-            System.out.println("Start: " + start);
-            System.out.println("Start: " + end);
-
-            if (start == null || end == null) {
-                throw new IllegalArgumentException("Route contains null station at index " + i);
-            }
-
             temp.add(new RouteLeg(start, end));
         }
 
@@ -98,7 +91,7 @@ public class RoutePlanner {
     public float getDistance() {
         float total = 0;
         for (RouteLeg d : route) {
-            total = total + d.getDistance();
+            total += d.getDistance();
         }
         return total;
     }

@@ -1,11 +1,11 @@
 package components;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -19,9 +19,11 @@ public class SummaryPanel extends JPanel {
     private JLabel busLabel;
     private JPanel centerPanel;
 
+    private Font subtitle = new Font("Arial", Font.BOLD, 18);
+
     public SummaryPanel() {
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLACK));
+        setPreferredSize(new Dimension(0, 100));
 
         etaLabel = new JLabel("ETA: --");
         busLabel = new JLabel("Your Bus: --");
@@ -46,7 +48,11 @@ public class SummaryPanel extends JPanel {
     private JPanel createTopPanel() {
         JPanel top = new JPanel(new GridLayout(2, 1));
         top.setAlignmentX(CENTER_ALIGNMENT);
+        etaLabel.setAlignmentX(CENTER_ALIGNMENT);
+        etaLabel.setFont(subtitle);
         top.add(etaLabel);
+        busLabel.setAlignmentX(CENTER_ALIGNMENT);
+        busLabel.setFont(subtitle);
         top.add(busLabel);
         return top;
     }

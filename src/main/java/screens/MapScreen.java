@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import components.SummaryPanel;
 import components.topTab;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -19,6 +21,7 @@ import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import permissions.StationManager;
+import primary.RoutePlanner;
 import primary.Station;
 
 public class MapScreen extends JPanel {
@@ -28,6 +31,7 @@ public class MapScreen extends JPanel {
 
     private MapScreen mapScreen;
     private List<Station> route = new ArrayList<>();
+    private SummaryPanel summaryPanel = new SummaryPanel();
 
     private Font subTitle = new Font("Arial", Font.BOLD, 20);
 
@@ -35,12 +39,14 @@ public class MapScreen extends JPanel {
     private boolean mapInitialized = false; // ensure map initializes only once
     private WebEngine engine;
 
-    public void setRoute(List<Station> route) {
+    public void setRoute(List<Station> route, RoutePlanner planner) {
         this.route = route;
 
         if (mapInitialized) {
             refreshMap();
         }
+
+        summaryPanel.updateSummary(route, planner);
     }
 
     private void refreshMap() {
@@ -83,6 +89,9 @@ public class MapScreen extends JPanel {
 
         // --- Content Panel (JavaFX WebView) ---
         content = new JFXPanel();
+        content.setLayout(null);
+        summaryPanel.setBounds(10, content.getHeight() - 120, 300, 100);
+        content.add(summaryPanel);
 
         // --- Listen for Swing component being shown (important for CardLayout) ---
         this.addComponentListener(new ComponentAdapter() {
@@ -95,7 +104,27 @@ public class MapScreen extends JPanel {
         });
 
         add(tTab, BorderLayout.NORTH);
-        add(content, BorderLayout.CENTER);
+        JLayeredPane layeredPane = new JLayeredPane();
+
+        layeredPane.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                int w = layeredPane.getWidth();
+                int h = layeredPane.getHeight();
+
+                content.setBounds(0, 0, w, h);
+
+                summaryPanel.setBounds(10, h - 170, 250, 150);
+            }
+        });
+
+        content.setBounds(0, 0, 800, 600); //resize later
+        summaryPanel.setBounds(10, 450, 300, 100);
+
+        layeredPane.add(content, JLayeredPane.DEFAULT_LAYER);
+        layeredPane.add(summaryPanel, JLayeredPane.PALETTE_LAYER);
+
+        add(layeredPane, BorderLayout.CENTER);
         revalidate();
         repaint();
     }

@@ -113,24 +113,32 @@ public class SettingsScreen extends JPanel {
             if (!newFirst.isEmpty() && !newLast.isEmpty()
                     && !newPass.isEmpty()) {
 
-                // create and set custom username for user
-                String newUser = newLast.toLowerCase()
-                        + (newFirst.isEmpty() ? "" : newFirst.substring(0, 1).toLowerCase());
+                String newName = newFirst + " " + newLast;
 
-                // contingent: if two usernames are the same, add a 1 to the end of the username
-                Admin.getUsers();
-                for (int l = 0; l < Admin.getUsers().size(); l++) {
-                    if (Admin.getUsers().get(l).getUsername().equalsIgnoreCase(newUser)) {
-                        newUser = newUser + ThreadLocalRandom.current().nextInt(1, 10000);
+                if (!Session.getUser().getName().equals(newName)) {
+                    // create and set custom username for user
+                    String newUser = newLast.toLowerCase()
+                            + (newFirst.isEmpty() ? "" : newFirst.substring(0, 1).toLowerCase());
+                    // contingent: if two usernames are the same, add a 1 to the end of the username
+                    Admin.getUsers();
+                    for (int l = 0; l < Admin.getUsers().size(); l++) {
+                        if (Admin.getUsers().get(l).getUsername().equalsIgnoreCase(newUser)) {
+                            newUser = newUser + ThreadLocalRandom.current().nextInt(1, 10000);
+                        }
                     }
+                    Session.getUser().setName(newFirst + " " + newLast);
+                    Session.getUser().setUsername(newUser);
                 }
 
-                Session.getUser().setName(newFirst + " " + newLast);
-                Session.getUser().setUsername(newUser);
                 Session.getUser().setPassword(newPass);
 
                 Admin.updateUser(Session.getUser(), ogUsername);
 
+                JOptionPane.showMessageDialog(null,
+                                    "Your account has been updated",
+                                    "Account Updated!",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                    
                 updateFields();
                 revalidate();
                 repaint();

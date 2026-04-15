@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -22,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
@@ -43,9 +43,12 @@ public class HomeScreen extends JPanel {
     private SummaryPanel summaryPanel = new SummaryPanel();
 
     private int stopCount = 0;
+    private int currentRow = 6;
     private List<JComponent[]> stops = new ArrayList<>();
 
     private Timer sTimer = new Timer(300, e -> updateSummary());
+
+    private JPanel form;
 
     private JComboBox<String> departureStation = new JComboBox<>();
     private JComboBox<String> arrivalStation = new JComboBox<>();
@@ -64,19 +67,21 @@ public class HomeScreen extends JPanel {
     }
 
     // ================= UI SETUP =================
-
     private void initUI() {
         topTab tTab = new topTab("Home", cl, container, this);
 
-        summaryPanel.setBackground(Color.YELLOW);
-        summaryPanel.setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLACK));
-        summaryPanel.setPreferredSize(new Dimension(0, 100));
-
         JPanel content = createContentPanel();
 
+        JSplitPane split = new JSplitPane(
+                JSplitPane.VERTICAL_SPLIT,
+                content,
+                summaryPanel
+        );
+
+        split.setResizeWeight(0.6);
+
         add(tTab, BorderLayout.NORTH);
-        add(summaryPanel, BorderLayout.SOUTH);
-        add(content, BorderLayout.CENTER);
+        add(split, BorderLayout.CENTER);
     }
 
     private JPanel createContentPanel() {
@@ -96,7 +101,7 @@ public class HomeScreen extends JPanel {
     }
 
     private JPanel createFormPanel() {
-        JPanel form = new JPanel(new GridBagLayout());
+        form = new JPanel(new GridBagLayout());
         GridBagConstraints f = createConstraints();
 
         form.setBorder(new EmptyBorder(20, 60, 20, 60));
@@ -145,7 +150,7 @@ public class HomeScreen extends JPanel {
     }
 
     private void addFormComponents(JPanel form, GridBagConstraints f,
-                                    JButton addStop, JButton removeStop, JButton submit) {
+            JButton addStop, JButton removeStop, JButton submit) {
 
         form.add(new JLabel("Departure Station:"), f);
         f.gridy++;
@@ -167,7 +172,6 @@ public class HomeScreen extends JPanel {
     }
 
     // ================= LOGIC =================
-
     private void triggerUpdate() {
         if (sTimer.isRunning()) {
             sTimer.restart();
@@ -182,7 +186,9 @@ public class HomeScreen extends JPanel {
         Station departure = getStation(departureStation);
         Station arrival = getStation(arrivalStation);
 
-        if (departure == null || arrival == null) return;
+        if (departure == null || arrival == null) {
+            return;
+        }
 
         routePoints.add(departure);
 
@@ -203,7 +209,9 @@ public class HomeScreen extends JPanel {
 
         RoutePlanner route = new RoutePlanner(routePoints);
 
-        if (!route.validateRoute()) return;
+        if (!route.validateRoute()) {
+            return;
+        }
 
         summaryPanel.updateSummary(routePoints, route);
     }
@@ -218,11 +226,12 @@ public class HomeScreen extends JPanel {
     }
 
     // ================= LISTENERS =================
-
     private void setupListeners(JPanel form, JButton addStop, JButton removeStop, JButton submit) {
 
         removeStop.addActionListener(e -> {
-            if (stopCount == 0) return;
+            if (stopCount == 0) {
+                return;
+            }
 
             JComponent[] lastStop = stops.remove(stops.size() - 1);
             form.remove(lastStop[0]);
@@ -237,7 +246,9 @@ public class HomeScreen extends JPanel {
         });
 
         addStop.addActionListener((ActionEvent e) -> {
-            if (stopCount >= 3) return;
+            if (stopCount >= 3) {
+                return;
+            }
 
             JLabel label = new JLabel("Stop " + (char) ('A' + stopCount) + ":");
             JComboBox<String> box = new JComboBox<>();
@@ -245,7 +256,11 @@ public class HomeScreen extends JPanel {
             setupComboBox(box);
 
             GridBagConstraints f = createConstraints();
-            f.gridy = form.getComponentCount();
+            f.gridy = currentRow++;
+            form.add(label, f);
+
+            f.gridy = currentRow++;
+            form.add(box, f);
 
             form.add(label, f);
             f.gridy++;
@@ -282,7 +297,9 @@ public class HomeScreen extends JPanel {
 
         for (JComponent[] stop : stops) {
             Station s = getStation((JComboBox<String>) stop[1]);
-            if (s != null) routePoints.add(s);
+            if (s != null) {
+                routePoints.add(s);
+            }
         }
 
         routePoints.add(arrival);
@@ -297,13 +314,12 @@ public class HomeScreen extends JPanel {
             return;
         }
 
-        mapScreen.setRoute(routePoints);
+        mapScreen.setRoute(routePoints, route);
         cl.show(container, "map");
         clearForm();
     }
 
-    // ================= UTIL =================
-
+    // ================= UTILITIES =================
     private void initStations(JComboBox<String> box) {
         for (Station s : StationManager.getStations()) {
             if (!"refuel".equals(s.getType())) {
@@ -318,9 +334,17 @@ public class HomeScreen extends JPanel {
         JTextField editor = (JTextField) combo.getEditor().getEditorComponent();
 
         editor.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { triggerUpdate(); }
-            public void removeUpdate(DocumentEvent e) { triggerUpdate(); }
-            public void changedUpdate(DocumentEvent e) { triggerUpdate(); }
+            public void insertUpdate(DocumentEvent e) {
+                triggerUpdate();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                triggerUpdate();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                triggerUpdate();
+            }
         });
     }
 
@@ -330,26 +354,36 @@ public class HomeScreen extends JPanel {
         final boolean[] adjusting = {false};
 
         Timer searchTimer = new Timer(200, e -> {
-            if (adjusting[0] || !editor.isFocusOwner()) return;
+            if (adjusting[0]) {
+                return;
+            }
 
             adjusting[0] = true;
 
             String input = editor.getText();
 
-            combo.setPopupVisible(false);
-            combo.removeAllItems();
+            // Save caret position
+            int caret = editor.getCaretPosition();
 
+            // Build filtered list
+            List<String> filtered = new ArrayList<>();
             for (Station s : data) {
-                if (!"refuel".equals(s.getType()) &&
-                    s.getName().toLowerCase().contains(input.toLowerCase())) {
-                    combo.addItem(s.getName());
+                if (!"refuel".equals(s.getType())
+                        && s.getName().toLowerCase().contains(input.toLowerCase())) {
+                    filtered.add(s.getName());
                 }
             }
 
-            editor.setText(input);
-            editor.setCaretPosition(input.length());
+            combo.setModel(new javax.swing.DefaultComboBoxModel<>(
+                    filtered.toArray(String[]::new)
+            ));
 
-            if (combo.getItemCount() > 0) {
+            if (!editor.getText().equals(input)) {
+                editor.setText(input);
+            }
+
+            // Only show popup if user is typing
+            if (editor.isFocusOwner() && !filtered.isEmpty()) {
                 combo.setPopupVisible(true);
             }
 
@@ -359,15 +393,29 @@ public class HomeScreen extends JPanel {
         searchTimer.setRepeats(false);
 
         editor.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { searchTimer.restart(); }
-            public void removeUpdate(DocumentEvent e) { searchTimer.restart(); }
-            public void changedUpdate(DocumentEvent e) { searchTimer.restart(); }
+            public void insertUpdate(DocumentEvent e) {
+                searchTimer.restart();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                searchTimer.restart();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                searchTimer.restart();
+            }
         });
     }
 
     private void clearForm() {
         ((JTextField) departureStation.getEditor().getEditorComponent()).setText("");
         ((JTextField) arrivalStation.getEditor().getEditorComponent()).setText("");
+
+        // Remove stop components from UI
+        for (JComponent[] stop : stops) {
+            form.remove(stop[0]);
+            form.remove(stop[1]);
+        }
 
         stopCount = 0;
         stops.clear();
