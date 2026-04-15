@@ -5,6 +5,8 @@ import java.awt.CardLayout;
 import java.awt.Font;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -23,10 +25,53 @@ public class MapScreen extends JPanel {
 
     private CardLayout cl;
     private JPanel container;
+
+    private MapScreen mapScreen;
+    private List<Station> route = new ArrayList<>();
+
     private Font subTitle = new Font("Arial", Font.BOLD, 20);
 
     private JFXPanel content;
     private boolean mapInitialized = false; // ensure map initializes only once
+    private WebEngine engine;
+
+    public void setRoute(List<Station> route) {
+        this.route = route;
+
+        if (mapInitialized) {
+            refreshMap();
+        }
+    }
+
+    private void refreshMap() {
+        if (!mapInitialized || engine == null || route == null || route.size() < 2) {
+            return;
+        }
+
+        Platform.runLater(() -> {
+            StringBuilder js = new StringBuilder();
+
+            js.append("""
+            if (window.routeLine) {
+                map.removeLayer(window.routeLine);
+            }
+        """);
+
+            js.append("window.routeLine = L.polyline([");
+
+            for (Station s : route) {
+                js.append(String.format("[%f, %f],",
+                        s.getLatitude(),
+                        s.getLongitude()));
+            }
+
+            js.append("], {color: 'blue'}).addTo(map);\n");
+
+            js.append("map.fitBounds(window.routeLine.getBounds());");
+
+            engine.executeScript(js.toString());
+        });
+    }
 
     public MapScreen(JFrame parent, CardLayout cl, JPanel container) {
         this.cl = cl;
@@ -44,7 +89,7 @@ public class MapScreen extends JPanel {
             @Override
             public void componentShown(ComponentEvent e) {
                 // Only initialize once
-                content.removeComponentListener(this);
+                MapScreen.this.removeComponentListener(this);
                 SwingUtilities.invokeLater(() -> initializeMap(content));
             }
         });
@@ -59,7 +104,7 @@ public class MapScreen extends JPanel {
         // Ensure JFXPanel is initialized
         Platform.runLater(() -> {
             WebView webView = new WebView();
-            WebEngine engine = webView.getEngine();
+            this.engine = webView.getEngine();
             Scene scene = new Scene(webView);
             webView.prefWidthProperty().bind(scene.widthProperty());
             webView.prefHeightProperty().bind(scene.heightProperty());
@@ -91,13 +136,11 @@ public class MapScreen extends JPanel {
                 <div id="map"></div>
                 <script>
                     function initMap() {
-                        var map = L.map('map').setView([34.0, -81.0], 100);
+                        window.map = L.map('map').setView([44, -100], 5);
 
                         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                             attribution: 'Map data © OpenStreetMap'
                         }).addTo(map);
-
-                        L.marker([34.0, -81.0]).addTo(map).bindPopup("default");
 
                         %s
 
@@ -113,6 +156,14 @@ public class MapScreen extends JPanel {
 
             engine.loadContent(htmlCode);
             content.setScene(scene);
+
+            //wait until webview finishes
+            engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+                if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+                    mapInitialized = true;
+                    refreshMap();
+                }
+            });
         });
     }
 }

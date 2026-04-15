@@ -10,7 +10,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +20,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.Timer;
@@ -28,7 +28,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import components.MapPanel;
+import components.SummaryPanel;
 import components.topTab;
 import permissions.StationManager;
 import primary.RoutePlanner;
@@ -36,299 +36,343 @@ import primary.Station;
 
 public class HomeScreen extends JPanel {
 
-    //create placeholder objects for the parent's cardlayout and container
     private CardLayout cl;
     private JPanel container;
+    private MapScreen mapScreen;
 
-    //Used to track the amount of Stops currently on the homepage screen
+    private SummaryPanel summaryPanel = new SummaryPanel();
+
     private int stopCount = 0;
-    java.util.List<JComponent[]> stops = new java.util.ArrayList<>();
+    private List<JComponent[]> stops = new ArrayList<>();
 
-    //Universal font to be used for Hamburger menu
-    Font subTitle = new Font("Arial", Font.BOLD, 20);
+    private Timer sTimer = new Timer(300, e -> updateSummary());
 
-    //create form components in advance
-    JComboBox<String> departureStation = new JComboBox<>();
-    JComboBox<String> arrivalStation = new JComboBox<>();
+    private JComboBox<String> departureStation = new JComboBox<>();
+    private JComboBox<String> arrivalStation = new JComboBox<>();
 
-    //function that is set to call after add/remove button is pressed
-    private void updateButtons(JButton addStop, JButton removeStop) {
-        removeStop.setVisible(stopCount > 0);//if amount of stops is 0, it is not visible
-        addStop.setVisible(stopCount < 3);//if amount of stops is at least 3, it is not visible
+    private Font subTitle = new Font("Arial", Font.BOLD, 20);
+
+    public HomeScreen(JFrame parent, CardLayout cl, JPanel container, MapScreen mapScreen) {
+        this.cl = cl;
+        this.container = container;
+        this.mapScreen = mapScreen;
+
+        setLayout(new BorderLayout());
+        sTimer.setRepeats(false);
+
+        initUI();
     }
 
-    private void initStations(JComboBox<String> x) {
-        for (Station s : StationManager.getStations()) {
-            if ("refuel".equals(s.getType())) {
-                continue;
-            }
-            x.addItem(s.getName());
-        }
-        JTextField y = (JTextField) x.getEditor().getEditorComponent();
-        y.setText("");
-    }
+    // ================= UI SETUP =================
 
-    private void filter(JComboBox<String> combo, JTextField editor,
-            List<Station> data, boolean[] adjusting) {
-
-        if (adjusting[0] || !editor.isFocusOwner()) {
-            return;
-        }
-
-        adjusting[0] = true;
-
-        String input = editor.getText();
-
-        combo.setPopupVisible(false);
-        combo.removeAllItems();
-
-        for (Station s : data) {
-            if (s.getName().toLowerCase().contains(input.toLowerCase())) {
-                if ("refuel".equals(s.getType())) {
-                    continue;
-                }
-                combo.addItem(s.getName());
-            }
-        }
-
-        if (!editor.getText().equals(input)) {
-            editor.setText(input);
-            editor.setCaretPosition(input.length());
-        }
-
-        if (combo.getItemCount() > 0 && editor.isFocusOwner()) {
-            combo.setPopupVisible(true);
-        }
-        adjusting[0] = false;
-    }
-
-    //function to allow searching for stations based on combobox content
-    private void stationSearch(JComboBox<String> combo, List<Station> data) {
-        JTextField editor = (JTextField) combo.getEditor().getEditorComponent();
-
-        final boolean[] adjusting = {false};
-
-        Timer searchTime = new Timer(200, e -> filter(
-                combo, editor, data, adjusting));
-
-        searchTime.setRepeats(false);
-
-        editor.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) {
-                restart();
-            }
-
-            public void removeUpdate(DocumentEvent e) {
-                restart();
-            }
-
-            public void changedUpdate(DocumentEvent e) {
-                restart();
-            }
-
-            private void restart() {
-                if (searchTime.isRunning()) {
-                    searchTime.restart();
-                } else {
-                    searchTime.start();
-                }
-            }
-        });
-    }
-
-    private void clearForm(){
-        JTextField a = (JTextField) departureStation.getEditor().getEditorComponent();
-        a.setText("");
-
-        JTextField b = (JTextField) arrivalStation.getEditor().getEditorComponent();
-        b.setText("");
-    }
-
-    public HomeScreen(JFrame parent, CardLayout cl, JPanel container) {
-        setLayout(new BorderLayout());//set page layout as a borderlayout
-
+    private void initUI() {
         topTab tTab = new topTab("Home", cl, container, this);
 
-        //add placeholder for the history/summary panel to the bottom of page
-        JPanel history = new JPanel();
-        history.setBackground(Color.yellow);
-        history.setAlignmentX(Component.CENTER_ALIGNMENT);
-        history.setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLACK));
+        summaryPanel.setBackground(Color.YELLOW);
+        summaryPanel.setBorder(BorderFactory.createMatteBorder(2, 0, 0, 0, Color.BLACK));
+        summaryPanel.setPreferredSize(new Dimension(0, 100));
 
-        //"Work in Progress" message for history panel
-        JLabel wipMsg = new JLabel("Recent Routes/Summary of current route will go here");
-        wipMsg.setFont(new Font("Arial", Font.BOLD, 20));
-        history.add(wipMsg);
+        JPanel content = createContentPanel();
 
-        //create the main center panel
+        add(tTab, BorderLayout.NORTH);
+        add(summaryPanel, BorderLayout.SOUTH);
+        add(content, BorderLayout.CENTER);
+    }
+
+    private JPanel createContentPanel() {
         JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
-        //title for the main content panel
         JLabel title = new JLabel("Create a new Route");
         title.setAlignmentX(CENTER_ALIGNMENT);
         title.setFont(subTitle);
 
-        //add main form to the content panel, setting layout to gridbag
-        JPanel form = new JPanel();
-        form.setLayout(new GridBagLayout());
+        JPanel form = createFormPanel();
+
+        content.add(title);
+        content.add(form);
+
+        return content;
+    }
+
+    private JPanel createFormPanel() {
+        JPanel form = new JPanel(new GridBagLayout());
+        GridBagConstraints f = createConstraints();
+
+        form.setBorder(new EmptyBorder(20, 60, 20, 60));
+        form.setPreferredSize(new Dimension(500, 250));
+        form.setOpaque(false);
+
+        setupComboBox(departureStation);
+        setupComboBox(arrivalStation);
+
+        JButton addStop = createButton("Add Stop", Color.GREEN);
+        JButton removeStop = createButton("Remove Stop", Color.RED);
+        JButton submit = createButton("Generate Route", Color.BLUE);
+
+        addFormComponents(form, f, addStop, removeStop, submit);
+        setupListeners(form, addStop, removeStop, submit);
+
+        return form;
+    }
+
+    private GridBagConstraints createConstraints() {
         GridBagConstraints f = new GridBagConstraints();
         f.gridx = 0;
         f.gridy = 0;
         f.fill = GridBagConstraints.HORIZONTAL;
         f.weightx = 1.0;
         f.insets = new Insets(5, 0, 5, 0);
+        return f;
+    }
 
-        form.setBorder(new EmptyBorder(20, 60, 20, 60));
-        form.setPreferredSize(new Dimension(500, 250));
-        form.setOpaque(false);
+    private void setupComboBox(JComboBox<String> combo) {
+        combo.setEditable(true);
+        combo.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
+        initStations(combo);
+        stationSearch(combo, StationManager.getStations());
 
-        //Entry for departure station, a combobox that will be used to search the database
-        JLabel departure = new JLabel("Departure Station:");
-        departure.setAlignmentY(Component.CENTER_ALIGNMENT);
-        departureStation.setEditable(true);
-        departureStation.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
-        initStations(departureStation);
-        stationSearch(departureStation, StationManager.getStations());
+        combo.addActionListener(e -> triggerUpdate());
+        addDocumentListener(combo);
+    }
 
-        //button to add a stop to the user's route
-        JButton addStop = new JButton("Add Stop");
-        addStop.setAlignmentX(Component.CENTER_ALIGNMENT);
-        addStop.setBackground(Color.GREEN);
-        addStop.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
+    private JButton createButton(String text, Color color) {
+        JButton btn = new JButton(text);
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn.setBackground(color);
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
+        return btn;
+    }
 
-        //button to remove a stop from the user's route
-        JButton removeStop = new JButton("Remove Stop");
-        removeStop.setAlignmentX(Component.CENTER_ALIGNMENT);
-        removeStop.setBackground(Color.RED);
-        removeStop.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
+    private void addFormComponents(JPanel form, GridBagConstraints f,
+                                   JButton addStop, JButton removeStop, JButton submit) {
 
-        //Entry for arrival station, a combobox that will be used to search the database
-        JLabel arrival = new JLabel("Arrival Station:");
-        arrival.setAlignmentY(Component.CENTER_ALIGNMENT);
-        arrivalStation.setEditable(true);
-        arrivalStation.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
-        initStations(arrivalStation);
-        stationSearch(arrivalStation, StationManager.getStations());
-
-        //button to submit the user's route
-        JButton submit = new JButton("Generate Route");
-        submit.setAlignmentX(Component.CENTER_ALIGNMENT);
-        submit.setBackground(Color.BLUE);
-        submit.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
-
-        MapPanel map = new MapPanel();
-        map.setPreferredSize(new Dimension(400, 300));
-
-        content.add(map);
-
-        //listener for the remove stop button
-        removeStop.addActionListener(e -> {
-            if (stopCount == 0) {
-                return; //abort if there are no stops
-            }
-            JComponent[] lastStop = stops.remove(stops.size() - 1);//remove the last entry in the stops list
-
-            form.remove(lastStop[0]); // remove label
-            form.remove(lastStop[1]); // remove combo box
-
-            stopCount--;//stop count decreases by 1
-
-            updateButtons(addStop, removeStop);//call update buttons
-
-            //recreate the page with updated layout afterwards
-            form.revalidate();
-            form.repaint();
-        });
-
-        //listener for add stop button
-        addStop.addActionListener((ActionEvent e) -> {
-            if (stopCount >= 3) {
-                return; //if there are 3+ stops, abort
-            }                //create a new label and (editable)combobox (label determined by stop count)
-            JLabel stopLabel = new JLabel("Stop " + (char) ('A' + stopCount) + ":");
-            JComboBox<String> stopBox = new JComboBox<>();
-            stopBox.setEditable(true);
-            initStations(stopBox);
-            stationSearch(stopBox, StationManager.getStations());
-            //place label and combobox at the next row in the gridbag layout
-            f.gridy++;
-            form.add(stopLabel, f);
-            f.gridy++;
-            form.add(stopBox, f);
-
-            //add stop to the list and increase stop count
-            stops.add(new JComponent[]{stopLabel, stopBox});
-            stopCount++;
-
-            updateButtons(addStop, removeStop);//call update buttons
-
-            //recreate the page with updated layout afterwards
-            form.revalidate();
-            form.repaint();
-        });
-
-        //listener for submit button:
-        submit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                List<Station> routePoints = new ArrayList<>();
-
-                Station departure = StationManager.getStationByName(
-                        (String) departureStation.getSelectedItem());
-                Station arrival = StationManager.getStationByName(
-                        (String) arrivalStation.getSelectedItem());
-                
-                routePoints.add(departure);
-
-                for (JComponent[] stop : stops) {
-                    JComboBox<String> box = (JComboBox<String>) stop[1];
-                    String x = (String) box.getSelectedItem();
-                    routePoints.add(StationManager.getStationByName(x));
-                }
-
-                routePoints.add(arrival);
-
-                RoutePlanner route = new RoutePlanner(routePoints);
-
-                if(route.testRoute()){
-                }else if(route.reroute()){
-                }
-                clearForm();
-            }
-        });
-
-        //add all elements to the form
-        form.add(departure, f);
-
-        f.gridy = 1;
+        form.add(new JLabel("Departure Station:"), f);
+        f.gridy++;
         form.add(departureStation, f);
 
-        f.gridy = 2;
-        form.add(arrival, f);
-
-        f.gridy = 3;
+        f.gridy++;
+        form.add(new JLabel("Arrival Station:"), f);
+        f.gridy++;
         form.add(arrivalStation, f);
 
-        f.gridy = 4;
+        f.gridy++;
         form.add(addStop, f);
 
-        f.gridy = 5;
+        f.gridy++;
         form.add(removeStop, f);
 
-        f.gridy = 9;
+        f.gridy += 4;
         form.add(submit, f);
+    }
 
-        //set the layout of main content panel and add the title and form to it
-        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
-        content.add(title);
-        content.add(form);
+    // ================= LOGIC =================
 
-        //set size bottom tab
-        history.setPreferredSize(new Dimension(0, 100));
+    private void triggerUpdate() {
+        if (sTimer.isRunning()) {
+            sTimer.restart();
+        } else {
+            sTimer.start();
+        }
+    }
 
-        //add 3 panels to the homescreen
-        add(tTab, BorderLayout.NORTH);
-        add(history, BorderLayout.SOUTH);
-        add(content, BorderLayout.CENTER);
+    private void updateSummary() {
+        List<Station> routePoints = new ArrayList<>();
+
+        Station departure = getStation(departureStation);
+        Station arrival = getStation(arrivalStation);
+
+        if (departure == null || arrival == null) return;
+
+        routePoints.add(departure);
+
+        Station last = departure;
+
+        for (JComponent[] stop : stops) {
+            Station s = getStation((JComboBox<String>) stop[1]);
+
+            if (s != null && !s.getName().equals(last.getName())) {
+                routePoints.add(s);
+                last = s;
+            }
+        }
+
+        if (!arrival.getName().equals(last.getName())) {
+            routePoints.add(arrival);
+        }
+
+        RoutePlanner route = new RoutePlanner(routePoints);
+
+        if (!route.validateRoute()) return;
+
+        summaryPanel.updateSummary(routePoints, route);
+    }
+
+    private Station getStation(JComboBox<String> box) {
+        return StationManager.getStationByName((String) box.getSelectedItem());
+    }
+
+    private void updateButtons(JButton add, JButton remove) {
+        remove.setVisible(stopCount > 0);
+        add.setVisible(stopCount < 3);
+    }
+
+    // ================= LISTENERS =================
+
+    private void setupListeners(JPanel form, JButton addStop, JButton removeStop, JButton submit) {
+
+        removeStop.addActionListener(e -> {
+            if (stopCount == 0) return;
+
+            JComponent[] lastStop = stops.remove(stops.size() - 1);
+            form.remove(lastStop[0]);
+            form.remove(lastStop[1]);
+
+            stopCount--;
+            updateButtons(addStop, removeStop);
+            triggerUpdate();
+
+            form.revalidate();
+            form.repaint();
+        });
+
+        addStop.addActionListener((ActionEvent e) -> {
+            if (stopCount >= 3) return;
+
+            JLabel label = new JLabel("Stop " + (char) ('A' + stopCount) + ":");
+            JComboBox<String> box = new JComboBox<>();
+
+            setupComboBox(box);
+
+            GridBagConstraints f = createConstraints();
+            f.gridy = form.getComponentCount();
+
+            form.add(label, f);
+            f.gridy++;
+            form.add(box, f);
+
+            stops.add(new JComponent[]{label, box});
+            stopCount++;
+
+            updateButtons(addStop, removeStop);
+            triggerUpdate();
+
+            form.revalidate();
+            form.repaint();
+        });
+
+        submit.addActionListener(e -> handleSubmit());
+    }
+
+    private void handleSubmit() {
+        List<Station> routePoints = new ArrayList<>();
+
+        Station departure = getStation(departureStation);
+        Station arrival = getStation(arrivalStation);
+
+        if (departure == null || arrival == null) {
+            JOptionPane.showMessageDialog(null,
+                    "Please select valid departure and arrival stations.",
+                    "Invalid Input",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        routePoints.add(departure);
+
+        for (JComponent[] stop : stops) {
+            Station s = getStation((JComboBox<String>) stop[1]);
+            if (s != null) routePoints.add(s);
+        }
+
+        routePoints.add(arrival);
+
+        RoutePlanner route = new RoutePlanner(routePoints);
+
+        if (!route.validateRoute()) {
+            JOptionPane.showMessageDialog(null,
+                    "This route is not possible with available buses/refuel stations.",
+                    "Invalid Route",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        mapScreen.setRoute(routePoints);
+        cl.show(container, "map");
+        clearForm();
+    }
+
+    // ================= UTIL =================
+
+    private void initStations(JComboBox<String> box) {
+        for (Station s : StationManager.getStations()) {
+            if (!"refuel".equals(s.getType())) {
+                box.addItem(s.getName());
+            }
+        }
+
+        ((JTextField) box.getEditor().getEditorComponent()).setText("");
+    }
+
+    private void addDocumentListener(JComboBox<String> combo) {
+        JTextField editor = (JTextField) combo.getEditor().getEditorComponent();
+
+        editor.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { triggerUpdate(); }
+            public void removeUpdate(DocumentEvent e) { triggerUpdate(); }
+            public void changedUpdate(DocumentEvent e) { triggerUpdate(); }
+        });
+    }
+
+    private void stationSearch(JComboBox<String> combo, List<Station> data) {
+        JTextField editor = (JTextField) combo.getEditor().getEditorComponent();
+
+        final boolean[] adjusting = {false};
+
+        Timer searchTimer = new Timer(200, e -> {
+            if (adjusting[0] || !editor.isFocusOwner()) return;
+
+            adjusting[0] = true;
+
+            String input = editor.getText();
+
+            combo.setPopupVisible(false);
+            combo.removeAllItems();
+
+            for (Station s : data) {
+                if (!"refuel".equals(s.getType()) &&
+                    s.getName().toLowerCase().contains(input.toLowerCase())) {
+                    combo.addItem(s.getName());
+                }
+            }
+
+            editor.setText(input);
+            editor.setCaretPosition(input.length());
+
+            if (combo.getItemCount() > 0) {
+                combo.setPopupVisible(true);
+            }
+
+            adjusting[0] = false;
+        });
+
+        searchTimer.setRepeats(false);
+
+        editor.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { searchTimer.restart(); }
+            public void removeUpdate(DocumentEvent e) { searchTimer.restart(); }
+            public void changedUpdate(DocumentEvent e) { searchTimer.restart(); }
+        });
+    }
+
+    private void clearForm() {
+        ((JTextField) departureStation.getEditor().getEditorComponent()).setText("");
+        ((JTextField) arrivalStation.getEditor().getEditorComponent()).setText("");
+
+        stopCount = 0;
+        stops.clear();
+
+        revalidate();
+        repaint();
     }
 }

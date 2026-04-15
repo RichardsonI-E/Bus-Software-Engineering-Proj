@@ -37,7 +37,6 @@ import primary.Station.BusStation;
 import primary.Station.RefuelStation;
 
 // 24.5°N to 71.4°N latitude and 66.9°W to 172.5°E longitude
-
 public class SManageScreen extends JPanel {
 
     private CardLayout cl;
@@ -62,22 +61,20 @@ public class SManageScreen extends JPanel {
     //add a selected station for manager to update or delete
     Station selected = null;
 
-    private float verifyLat(float x){
-        if(x > 71.4){
-            x = (float) 71.4;
-        }else if (x < 24.5){
-            x = (float) 24.5;
+    private boolean verifyCoords(float x, float y) {
+        if (x > 71.4) {
+            return false;
+        } else if (x < 24.5) {
+            return false;
         }
-        return x;
-    }
 
-    private float verifyLong(float x){
-        if(x > 172.5){
-            x = (float) 172.5;
-        }else if (x < 66.9){
-            x = (float) 66.9;
+        if (y < -172.5) {
+            return false;
+        } else if (y > -66.9) {
+            return false;
         }
-        return x;
+
+        return true;
     }
 
     private void initTable(DefaultTableModel model) {
@@ -96,7 +93,7 @@ public class SManageScreen extends JPanel {
                 StringBuilder fuelTypes = new StringBuilder();
                 for (int x = 0; x < r.getFuelType().size(); x++) {
                     fuelTypes.append(r.getFuelType().get(x));
-                    if(x != r.getFuelType().size() - 1){
+                    if (x != r.getFuelType().size() - 1) {
                         fuelTypes.append(", ");
                     }
                 }
@@ -149,7 +146,7 @@ public class SManageScreen extends JPanel {
         latTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
         latitude.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        JLabel longTxt = new JLabel("Longitude (between 66.9 and 172.5):");
+        JLabel longTxt = new JLabel("Longitude (between -66.9 and -172.5):");
         longTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
         longitude.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
@@ -263,46 +260,19 @@ public class SManageScreen extends JPanel {
         //add listener for update button
         update.addActionListener(e -> {
             if (selected != null) {
-                if (busType.isSelected()) {
-                    BusStation newS = new BusStation(
-                            name.getText(),
-                            verifyLat(Float.parseFloat(latitude.getText())),
-                            verifyLong(Float.parseFloat(longitude.getText()))
-                    );
-                    newS.setID(selected.getID());
+                float lat = Float.parseFloat(latitude.getText());
+                float lon = Float.parseFloat(longitude.getText());
 
-                    StationManager.updateStation(newS);
-                } else {
-                    
-                    ArrayList<String> fuels = new ArrayList<>();
-                    if (diesel.isSelected()) {
-                        fuels.add("diesel");
-                    }
-                    if (unleaded.isSelected()) {
-                        fuels.add("unleaded");
-                    }
-
-                    RefuelStation newS = new RefuelStation(
-                            name.getText(),
-                            verifyLat(Float.parseFloat(latitude.getText())),
-                            verifyLong(Float.parseFloat(longitude.getText())),
-                            fuels
-                    );
-
-                    newS.setID(selected.getID());
-                    StationManager.updateStation(newS);
-                }
-            } else {
-                if (!name.getText().isEmpty() && !latitude.getText().isEmpty() && !longitude.getText().isEmpty()) {
+                if (verifyCoords(lat, lon)) {
                     if (busType.isSelected()) {
-
                         BusStation newS = new BusStation(
                                 name.getText(),
-                                verifyLat(Float.parseFloat(latitude.getText())),
-                                verifyLong(Float.parseFloat(longitude.getText()))
+                                lat,
+                                lon
                         );
+                        newS.setID(selected.getID());
 
-                        StationManager.addStation(newS);
+                        StationManager.updateStation(newS);
                     } else {
 
                         ArrayList<String> fuels = new ArrayList<>();
@@ -315,20 +285,69 @@ public class SManageScreen extends JPanel {
 
                         RefuelStation newS = new RefuelStation(
                                 name.getText(),
-                                verifyLat(Float.parseFloat(latitude.getText())),
-                                verifyLong(Float.parseFloat(longitude.getText())),
+                                lat,
+                                lon,
                                 fuels
                         );
 
-                        StationManager.addStation(newS);
+                        newS.setID(selected.getID());
+                        StationManager.updateStation(newS);
                     }
+                } else {
+                    JOptionPane.showMessageDialog(null,
+                            "Coordinates are out of service area.",
+                            "Invalid Coordinates",
+                            JOptionPane.WARNING_MESSAGE);
                 }
+            } else {
+                float lat = Float.parseFloat(latitude.getText());
+                float lon = Float.parseFloat(longitude.getText());
+
+                if (verifyCoords(lat, lon)) {
+                    if (!name.getText().isEmpty() && !latitude.getText().isEmpty()
+                            && !longitude.getText().isEmpty()) {
+                        if (busType.isSelected()) {
+
+                            BusStation newS = new BusStation(
+                                    name.getText(),
+                                    lat,
+                                    lon
+                            );
+
+                            StationManager.addStation(newS);
+                        } else {
+
+                            ArrayList<String> fuels = new ArrayList<>();
+                            if (diesel.isSelected()) {
+                                fuels.add("diesel");
+                            }
+                            if (unleaded.isSelected()) {
+                                fuels.add("unleaded");
+                            }
+
+                            RefuelStation newS = new RefuelStation(
+                                    name.getText(),
+                                    lat,
+                                    lon,
+                                    fuels
+                            );
+
+                            StationManager.addStation(newS);
+                        }
+                    }
+            }else{
+                JOptionPane.showMessageDialog(null,
+                            "Coordinates are out of service area.",
+                            "Invalid Coordinates",
+                            JOptionPane.WARNING_MESSAGE);
+            }
             }
             clearForm();
             initTable(model);
             form.revalidate();
             form.repaint();
-        });
+        }
+        );
 
         //add listener for delete button
         delete.addActionListener(e -> {

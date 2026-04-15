@@ -3,21 +3,29 @@ package primary;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-
 import permissions.BusManager;
 import permissions.StationManager;
 
 public class RoutePlanner {
+
     private List<RouteLeg> route;
     private Bus chosenBus;
 
-    public RoutePlanner(List<Station> stations){
-        List<RouteLeg> temp  = new ArrayList<>();
+    public RoutePlanner(List<Station> stations) {
+        List<RouteLeg> temp = new ArrayList<>();
 
-        for(int i = 0; i < stations.size() - 1; i++){
-            RouteLeg tempLeg = new RouteLeg(stations.get(i), stations.get(i + 1));
-            temp.add(tempLeg);
+        for (int i = 0; i < stations.size() - 1; i++) {
+            Station start = stations.get(i);
+            Station end = stations.get(i + 1);
+
+            System.out.println("Start: " + start);
+            System.out.println("Start: " + end);
+
+            if (start == null || end == null) {
+                throw new IllegalArgumentException("Route contains null station at index " + i);
+            }
+
+            temp.add(new RouteLeg(start, end));
         }
 
         route = temp;
@@ -30,17 +38,14 @@ public class RoutePlanner {
         for (RouteLeg r : route) {
             if (r.getDistance() < miles) {
                 newRoute.add(r);
-                miles = miles - r.getDistance();
+                miles -= r.getDistance();
             } else {
                 List<RouteLeg> refuelRoute = getNewLeg(r, miles, chosenBus);
                 if (refuelRoute != null) {
                     newRoute.addAll(refuelRoute);
-                    miles = (chosenBus.calcMaxRange() - refuelRoute.get(
-                            1).getDistance());
+                    miles = chosenBus.calcMaxRange() - refuelRoute.get(
+                            1).getDistance();
                 } else {
-                    JOptionPane.showMessageDialog(null,
-                            "This Route is currently impossible.",
-                            "Invalid Route", JOptionPane.WARNING_MESSAGE);
                     return false;
                 }
             }
@@ -57,7 +62,8 @@ public class RoutePlanner {
                 if (refuelStation.getFuelType().contains(bus.getFuel())) {
                     RouteLeg legA = new RouteLeg(oldLeg.getStart(), s);
                     RouteLeg legB = new RouteLeg(s, oldLeg.getEnd());
-                    if (legA.getDistance() < remaining) {
+                    if (legA.getDistance() < remaining
+                            && legB.getDistance() < bus.calcMaxRange()) {
                         newLegs.add(legA);
                         newLegs.add(legB);
                         return newLegs;
@@ -101,7 +107,32 @@ public class RoutePlanner {
         return getDistance() / chosenBus.getCruiseSpeed();
     }
 
+    public Bus getChosenBus(){
+        if(chosenBus == null){
+            findBus();
+        }
+        return chosenBus;
+    }
     public boolean testRoute() {
-        return getDistance() <= chosenBus.calcMaxRange();
+        findBus();
+        
+        for (RouteLeg r : route) {
+            if (r.getDistance() > chosenBus.calcMaxRange()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean validateRoute() {
+        if (chosenBus == null) {
+            findBus();
+        }
+
+        if (testRoute()) {
+            return true;
+        }
+
+        return reroute();
     }
 }

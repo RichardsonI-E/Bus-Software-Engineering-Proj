@@ -5,6 +5,8 @@ import java.awt.CardLayout;
 import java.awt.Font;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -18,7 +20,7 @@ import javafx.scene.web.WebView;
 import permissions.StationManager;
 import primary.Station;
 
-public class FinalScreen extends JPanel {
+public class SummaryScreen extends JPanel {
 
     private CardLayout cl;
     private JPanel container;
@@ -27,7 +29,40 @@ public class FinalScreen extends JPanel {
     private JFXPanel content;
     private boolean mapInitialized = false; // ensure map initializes only once
 
-    public FinalScreen(JFrame parent, CardLayout cl, JPanel container) {
+    private List<Station> route = new ArrayList<>();
+
+    public void setRoute(List<Station> route) {
+        this.route = route;
+        refresh();
+    }
+
+    private void refresh() {
+        if (!mapInitialized) {
+            return;
+        }
+
+        Platform.runLater(() -> {
+            WebEngine engine = ((WebView) content.getScene().getRoot()).getEngine();
+
+            StringBuilder routePath = new StringBuilder();
+
+            if (route != null && route.size() > 1) {
+                routePath.append("L.polyline([");
+
+                for (Station s : route) {
+                    routePath.append(String.format("[%f, %f],",
+                            s.getLatitude(),
+                            s.getLongitude()));
+                }
+
+                routePath.append("], {color: 'blue'}).addTo(map);\n");
+            }
+
+            engine.executeScript(routePath.toString());
+        });
+    }
+
+    public SummaryScreen(JFrame parent, CardLayout cl, JPanel container) {
         this.cl = cl;
         this.container = container;
 
@@ -87,13 +122,11 @@ public class FinalScreen extends JPanel {
                 <div id="map"></div>
                 <script>
                     function initMap() {
-                        var map = L.map('map').setView([34.0, -81.0], 100);
+                        window.map = L.map('map').setView([34.0, -81.0], 100);
 
                         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                             attribution: 'Map data © OpenStreetMap'
                         }).addTo(map);
-
-                        L.marker([34.0, -81.0]).addTo(map).bindPopup("default");
 
                         %s
 

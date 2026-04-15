@@ -5,21 +5,11 @@ public class RouteLeg {
     private Station start;
     private Station end;
 
-    float alpha = (float) ((this.end.getLatitude() - this.start.getLatitude())
-            / Math.sqrt((Math.pow(
-                    (this.end.getLongitude() - this.start.getLongitude()), 2)))
-            + Math.sqrt(Math.pow(
-                    this.end.getLatitude() - this.start.getLatitude(), 2)));
-    float degrees = (float) (alpha * 180 / Math.PI);
-
-    float a = 69 * (this.end.getLatitude() - this.start.getLatitude());
-    float b = (float) (69
-            * Math.cos(this.end.getLongitude() - this.start.getLongitude()));
-
-    private final float distance
-            = (float) Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
-
     public RouteLeg(Station start, Station end) {
+        if (start == null || end == null) {
+            throw new IllegalArgumentException("RouteLeg stations cannot be null");
+        }
+
         this.start = start;
         this.end = end;
     }
@@ -41,6 +31,8 @@ public class RouteLeg {
     }
 
     public String getHeading() {
+        float degrees = getDegrees();
+
         if (degrees > 360) {
             degrees = degrees - 360;
         }
@@ -65,6 +57,20 @@ public class RouteLeg {
     }
 
     public float getDistance() {
-        return distance;
+        float a = 69 * (this.end.getLatitude() - this.start.getLatitude());
+        float b = (float) (69
+                * Math.cos(this.end.getLongitude() - this.start.getLongitude()));
+
+        return (float) Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2));
+
+    }
+
+    public float getDegrees() {
+        float alpha = (float) ((this.end.getLatitude() - this.start.getLatitude())
+                / Math.sqrt((Math.pow(
+                        (this.end.getLongitude() - this.start.getLongitude()), 2)))
+                + Math.sqrt(Math.pow(
+                        this.end.getLatitude() - this.start.getLatitude(), 2)));
+        return (float) (alpha * 180 / Math.PI);
     }
 }
