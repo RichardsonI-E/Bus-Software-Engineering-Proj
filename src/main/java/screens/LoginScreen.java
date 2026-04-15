@@ -217,8 +217,6 @@ public class LoginScreen extends JPanel {
                             String firstNamef = firstName.getText().trim(); // set the final first name for the user
                             String lastNamef = lastName.getText().trim(); // set the final last name for the user
 
-                            // create and set custom username for user (tbd: create code if created username
-                            // matches one in records)
                             String usernamef = lastNamef.toLowerCase() +
                                     (firstNamef.isEmpty() ? "" : firstNamef.substring(0, 1).toLowerCase());
                             User newU = new User();
@@ -284,8 +282,5 @@ public class LoginScreen extends JPanel {
                 signUp.setVisible(true);
             }
         });
-        /*
-        
-        */
     }
 }

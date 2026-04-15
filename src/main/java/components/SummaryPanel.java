@@ -45,6 +45,7 @@ public class SummaryPanel extends JPanel {
 
     private JPanel createTopPanel() {
         JPanel top = new JPanel(new GridLayout(2, 1));
+        top.setAlignmentX(CENTER_ALIGNMENT);
         top.add(etaLabel);
         top.add(busLabel);
         return top;

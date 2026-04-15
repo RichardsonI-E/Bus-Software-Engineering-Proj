@@ -145,7 +145,7 @@ public class HomeScreen extends JPanel {
     }
 
     private void addFormComponents(JPanel form, GridBagConstraints f,
-                                   JButton addStop, JButton removeStop, JButton submit) {
+                                    JButton addStop, JButton removeStop, JButton submit) {
 
         form.add(new JLabel("Departure Station:"), f);
         f.gridy++;

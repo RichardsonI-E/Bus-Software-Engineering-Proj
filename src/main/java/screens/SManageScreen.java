@@ -62,19 +62,8 @@ public class SManageScreen extends JPanel {
     Station selected = null;
 
     private boolean verifyCoords(float x, float y) {
-        if (x > 71.4) {
-            return false;
-        } else if (x < 24.5) {
-            return false;
-        }
-
-        if (y < -172.5) {
-            return false;
-        } else if (y > -66.9) {
-            return false;
-        }
-
-        return true;
+        return x >= 24.5 && x <= 71.4 &&
+                y >= -168 && y <= -52;
     }
 
     private void initTable(DefaultTableModel model) {
@@ -146,7 +135,7 @@ public class SManageScreen extends JPanel {
         latTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
         latitude.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        JLabel longTxt = new JLabel("Longitude (between -66.9 and -172.5):");
+        JLabel longTxt = new JLabel("Longitude (between -168 and -52):");
         longTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
         longitude.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 

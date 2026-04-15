@@ -23,7 +23,7 @@ public abstract class Station {
     }
 
     //Declare Constructor
-    public Station(String name, float longitude, float latitude) {
+    public Station(String name, float latitude, float longitude) {
         this.name = name;
         this.longitude = longitude;
         this.latitude = latitude;
@@ -66,7 +66,7 @@ public abstract class Station {
     public static class BusStation extends Station {
         private String type;
 
-        public BusStation(String name, float longitude, float latitude) {
+        public BusStation(String name, float latitude, float longitude) {
             super(name, longitude, latitude);
             this.type = "bus";
         }
@@ -80,7 +80,7 @@ public abstract class Station {
         private String type ;
         private ArrayList<String> fuelType;
 
-        public RefuelStation(String name, float longitude, float latitude, ArrayList<String> fuelType) {
+        public RefuelStation(String name, float latitude, float longitude, ArrayList<String> fuelType) {
             super(name, longitude, latitude);
             this.type = "refuel";
             this.fuelType = fuelType;

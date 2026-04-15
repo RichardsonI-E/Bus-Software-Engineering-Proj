@@ -52,13 +52,6 @@ class StartInterface{
 
         UManageScreen uManageScreen = new UManageScreen(app, layout, container);
 
-        
-
-        //JPanel sManageScreen = new JPanel();
-        //creates a container to hold the screen for managers to manage stations(currently a placeholder)
-        //JPanel bManageScreen = new JPanel();
-        //creates a container to hold the screen for managers to manage buses (currently a placeholder)
-        //To add: more screens (usermanage, routeSummary, etc.)
         //add all screens to the cardLayout
         container.add(startScreen, "start");
         container.add(loginScreen, "login");
