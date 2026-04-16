@@ -209,12 +209,12 @@ public class LoginScreen extends JPanel {
 
                 // Label and entry field for the user's custom password
                 JLabel pTxt = new JLabel("Create a Password:");
-                JPasswordField makePass = new JPasswordField(16);
+                JPasswordField makePass = new JPasswordField();
                 pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
                 // Label and entry field for the user to confirm password
                 JLabel pCTxt = new JLabel("Confirm Password:");
-                JPasswordField confPass = new JPasswordField(16);
+                JPasswordField confPass = new JPasswordField();
                 pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
                 // add submit button
