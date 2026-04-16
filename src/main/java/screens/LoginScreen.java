@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -15,8 +16,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,6 +27,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.MaskFormatter;
 
 import components.Session;
 import permissions.Admin;
@@ -35,11 +39,18 @@ then make and confirm a password, in which a username will be automatically gene
 public class LoginScreen extends JPanel {
     private CardLayout cl;
     private JPanel container;
-    User currentUser = null; // to be used to store the given user
+    private User currentUser = null; // used to store the given user
+    private MaskFormatter nameMask;
 
     public LoginScreen(JFrame parent, CardLayout cl, JPanel container) {
         this.cl = cl;
         this.container = container;
+
+        try {
+            nameMask = new MaskFormatter("**********");
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
 
         // set the screen's layout to gridbag with light grey color
         setLayout(new GridBagLayout());
@@ -53,10 +64,10 @@ public class LoginScreen extends JPanel {
         // define and add placeholder logo
         JPanel logoP = new JPanel();
         logoP.setPreferredSize(new Dimension(120, 120));
-        logoP.setMaximumSize(new Dimension(120, 120));
-        logoP.setAlignmentX(Component.CENTER_ALIGNMENT);
-        logoP.setBackground(Color.yellow);
-        logoP.add(new JLabel("(Placeholder)"));
+        ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
+        Image scaled = logo.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+        ImageIcon scaledlogo = new ImageIcon(scaled);
+        logoP.add(new JLabel(scaledlogo));
 
         logContainer.add(logoP);
         logContainer.add(Box.createRigidArea(new Dimension(0, 15)));
@@ -188,65 +199,73 @@ public class LoginScreen extends JPanel {
 
                 // Label and entry field for the user's first name
                 JLabel fNTxt = new JLabel("First Name:");
-                JTextField firstName = new JTextField();
+                JFormattedTextField firstName = new JFormattedTextField(nameMask);
                 user.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
                 // Label and entry field for the user's last name
                 JLabel lNTxt = new JLabel("Last Name:");
-                JTextField lastName = new JTextField();
+                JFormattedTextField lastName = new JFormattedTextField(nameMask);
                 pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
                 // Label and entry field for the user's custom password
                 JLabel pTxt = new JLabel("Create a Password:");
-                JPasswordField makePass = new JPasswordField();
+                JPasswordField makePass = new JPasswordField(16);
                 pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
                 // Label and entry field for the user to confirm password
                 JLabel pCTxt = new JLabel("Confirm Password:");
-                JPasswordField confPass = new JPasswordField();
+                JPasswordField confPass = new JPasswordField(16);
                 pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
                 // add submit button
                 JButton submit = new JButton("Create Account");
-                // when clicked, check if the created password matches what is in the confirm
-                // password field
+
+                /*
+                 * when clicked, check if the created password matches what is in the confirm
+                 * password field
+                 */
                 submit.addActionListener(m -> {
                     if (!firstName.getText().isEmpty() && !lastName.getText().isEmpty()
                             && !makePass.getText().isEmpty()) {
-                        if (java.util.Arrays.equals(makePass.getPassword(), confPass.getPassword())) {
-                            String firstNamef = firstName.getText().trim(); // set the final first name for the user
-                            String lastNamef = lastName.getText().trim(); // set the final last name for the user
+                        if (makePass.getText().length() < 16) {
+                            if (java.util.Arrays.equals(makePass.getPassword(), confPass.getPassword())) {
+                                String firstNamef = firstName.getText().trim(); // set the final first name for the user
+                                String lastNamef = lastName.getText().trim(); // set the final last name for the user
 
-                            String usernamef = lastNamef.toLowerCase() +
-                                    (firstNamef.isEmpty() ? "" : firstNamef.substring(0, 1).toLowerCase());
-                            User newU = new User();
+                                String usernamef = lastNamef.toLowerCase() +
+                                        (firstNamef.isEmpty() ? "" : firstNamef.substring(0, 1).toLowerCase());
+                                User newU = new User();
 
-                            // set the new user's full name, username and password
-                            newU.setName(firstNamef + " " + lastNamef);
-                            char[] password = makePass.getPassword();
-                            newU.setPassword(new String(password));
-                            java.util.Arrays.fill(password, '\0'); // clear password from record
+                                // set the new user's full name, username and password
+                                newU.setName(firstNamef + " " + lastNamef);
+                                char[] password = makePass.getPassword();
+                                newU.setPassword(new String(password));
+                                java.util.Arrays.fill(password, '\0'); // clear password from record
 
-                            // contingent: if two usernames are the same, add a 1 to the end of the username
-                            Admin.getUsers();
-                            for (int l = 0; l < Admin.getUsers().size(); l++) {
-                                if (Admin.getUsers().get(l).getUsername().equalsIgnoreCase(usernamef)) {
-                                    usernamef = usernamef + ThreadLocalRandom.current().nextInt(1, 10000);
+                                // contingent: if two usernames are the same, add a 1 to the end of the username
+                                Admin.getUsers();
+                                for (int l = 0; l < Admin.getUsers().size(); l++) {
+                                    if (Admin.getUsers().get(l).getUsername().equalsIgnoreCase(usernamef)) {
+                                        usernamef = usernamef + ThreadLocalRandom.current().nextInt(1, 10000);
+                                    }
                                 }
-                            }
-                            newU.setUsername(usernamef);
-                            Admin.addUser(newU);
+                                newU.setUsername(usernamef);
+                                Admin.addUser(newU);
 
-                            // create confirmation box displaying username and close sign up dialog box
-                            JOptionPane.showMessageDialog(signUp,
-                                    "Your Username: " + usernamef,
-                                    "Account Created!",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                            signUp.dispose();
-                        } else {
-                            // if passwords do not match, display warning accordingly
-                            JOptionPane.showMessageDialog(signUp, "Password does not match confirmation", "Error",
-                                    JOptionPane.WARNING_MESSAGE);
+                                // create confirmation box displaying username and close sign up dialog box
+                                JOptionPane.showMessageDialog(signUp,
+                                        "Your Username: " + usernamef,
+                                        "Account Created!",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                                signUp.dispose();
+                            } else {
+                                // if passwords do not match, display warning accordingly
+                                JOptionPane.showMessageDialog(signUp, "Password does not match confirmation", "Error",
+                                        JOptionPane.WARNING_MESSAGE);
+                            }
+                        }else{
+                            JOptionPane.showMessageDialog(signUp, "Password must not exceed 16 characters", "Error",
+                                JOptionPane.WARNING_MESSAGE);
                         }
                     } else {
                         JOptionPane.showMessageDialog(signUp, "All fields must be filled", "Error",
