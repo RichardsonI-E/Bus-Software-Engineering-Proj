@@ -17,6 +17,7 @@ public abstract class Bus {
 
     //Declare Constructor for Bus Class
     public Bus(String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
+        //automatically set the id of the bus to a number from 1 to 1 million
         this.busID = ThreadLocalRandom.current().nextInt(1, 1000000);
         this.make = make;
         this.model = model;
@@ -26,6 +27,7 @@ public abstract class Bus {
     }
 
         //------------------------------Setter and getter methods-------------------//
+        //set/get bus ID#
         public void setBusID(int busID){
             this.busID = busID;
         }
@@ -79,6 +81,7 @@ public abstract class Bus {
         }
 
         /*-------------------- Declare Subclass ----------------------*/
+        //declare fuel type as subclass attribute, auto set it to unleaded
         public static class CityBus extends Bus{
             private String fuelType;
             public CityBus(String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
@@ -91,6 +94,7 @@ public abstract class Bus {
             }
         }
 
+        //declare fuel type as subclass attribute, auto set it to diesel
         public static class LongDisBus extends Bus{
             private String fuelType;
             public LongDisBus(String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){

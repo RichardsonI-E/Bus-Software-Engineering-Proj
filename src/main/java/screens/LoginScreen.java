@@ -63,9 +63,9 @@ public class LoginScreen extends JPanel {
 
         // define and add placeholder logo
         JPanel logoP = new JPanel();
-        logoP.setPreferredSize(new Dimension(120, 120));
+        logoP.setMaximumSize(new Dimension(200, 200));
         ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
-        Image scaled = logo.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+        Image scaled = logo.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
         ImageIcon scaledlogo = new ImageIcon(scaled);
         logoP.add(new JLabel(scaledlogo));
 
