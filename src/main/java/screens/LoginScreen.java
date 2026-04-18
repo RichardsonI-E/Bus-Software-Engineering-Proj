@@ -35,7 +35,8 @@ import primary.User;
 
 /*The main class associated with the Login Screen. It allows the user to input a username and (hidden)
 password (currently allows login via pressing the button) or create an account, inputting their first and last name,
-then make and confirm a password, in which a username will be automatically generated (not yet tied to User database)*/
+then make and confirm a password, in which a username will be automatically generated*/
+
 public class LoginScreen extends JPanel {
     private CardLayout cl;
     private JPanel container;

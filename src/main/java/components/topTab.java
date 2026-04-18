@@ -19,7 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
 import primary.User;
-
+/*This class acts as a global top panel for each screen, used to indicate
+the current screen and navigate to other screens*/
 public class topTab extends JPanel {
 
     public topTab(String title, CardLayout cl, JPanel container, Component parent) {
@@ -33,7 +34,7 @@ public class topTab extends JPanel {
         currentPage.setFont(new Font("Arial", Font.BOLD, 24));
         currentPage.setHorizontalAlignment(JLabel.CENTER);
 
-        //Create the Hamburger Icon
+        //Create the Hamburger Icon and properly size it
         ImageIcon hamburger = new ImageIcon(getClass().getClassLoader().getResource("Hamburger_icon.png"));
         Image scaled = hamburger.getImage().getScaledInstance(30, 30, Image.SCALE_SMOOTH);
         ImageIcon scaledHamburger = new ImageIcon(scaled);
@@ -84,8 +85,8 @@ public class topTab extends JPanel {
         });
 
         //action listeners: menu items that don't require special permissions
-        /*pressing respective item transfers you to that screen while logout returns to login screen
-        and clears current User*/
+        /*pressing respective item transfers you to that screen while logout returns
+        to login screen and clears current User*/
         home.addActionListener(
                 e -> cl.show(container, "home")
         );
@@ -106,7 +107,8 @@ public class topTab extends JPanel {
         //action listeners: Menu items that require specific permissions to allow access
         //if current user is station manager or admin, allow access, otherwise show warning message
         stations.addActionListener(e -> {
-            User currentUser = Session.getUser(); //declare the current user to check permissions
+            //get the current user from session to check permissions
+            User currentUser = Session.getUser();
 
             if (currentUser.getPerms().equals("admin")
                     || currentUser.getPerms().equals("stationManager")) {
@@ -119,7 +121,8 @@ public class topTab extends JPanel {
 
         //if current user is bus manager or admin, allow access, otherwise show warning message
         buses.addActionListener(e -> {
-            User currentUser = Session.getUser(); //declare the current user to check permissions
+            //get the current user from session to check permissions
+            User currentUser = Session.getUser();
 
             if (currentUser.getPerms().equals("admin")
                     || currentUser.getPerms().equals("busManager")) {
@@ -134,19 +137,24 @@ public class topTab extends JPanel {
         users.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                User currentUser = Session.getUser(); //declare the current user to check permissions
+                //get the current user from session to check permissions
+                User currentUser = Session.getUser();
                 if (currentUser.getPerms().equals("admin")) {
                     cl.show(container, "uManage");
                 } else {
-                    JOptionPane.showMessageDialog(topTab.this, "You do not have permission to access this page.", "Invalid Permissions", JOptionPane.WARNING_MESSAGE);
+                    JOptionPane.showMessageDialog(topTab.this,
+                        "You do not have permission to access this page.",
+                        "Invalid Permissions", JOptionPane.WARNING_MESSAGE);
                 }
             }
         });
 
+        //add the title and hamburger menu to the panel
         add(mockHamburger, BorderLayout.WEST);
         add(currentPage, BorderLayout.CENTER);
     }
 
+    //creates each menu item with appropriate names and borders
     private JMenuItem createItem(String text) {
         JMenuItem item = new JMenuItem(text);
         item.setFont(new Font("Arial", Font.PLAIN, 20));
