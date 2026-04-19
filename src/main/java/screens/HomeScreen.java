@@ -213,7 +213,7 @@ public class HomeScreen extends JPanel {
             return;
         }
 
-        summaryPanel.updateSummary(routePoints, route);
+        summaryPanel.updateSummary(route);
     }
 
     private Station getStation(JComboBox<String> box) {

@@ -46,7 +46,7 @@ public class MapScreen extends JPanel {
             refreshMap();
         }
 
-        summaryPanel.updateSummary(route, planner);
+        summaryPanel.updateSummary(planner);
     }
 
     private void refreshMap() {

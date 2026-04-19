@@ -5,7 +5,11 @@ import java.util.List;
 import json.JsonUtilities;
 import primary.Bus;
 import primary.User;
-
+/*
+Bus Manager subclass of user that manages the database of buses.
+The class holds all methods that have to do with modifying, saving and loading
+the list of buses.
+*/
 public class BusManager extends User {
     private static BusManager instance = new BusManager();
     //Created Arraylist for buses

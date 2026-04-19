@@ -4,9 +4,12 @@ import java.util.List;
 
 import json.JsonUtilities;
 import primary.User;
-
+/*
+Admin subclass of user that manages the database of users, buses and stations
+The class holds all methods that have to do with modifying, saving and loading
+the list of users.
+*/
 public class Admin extends User {
-
     private static final Admin instance = new Admin();
     // Created Arraylist for users
     private static List<User> users = JsonUtilities.loadUsers();

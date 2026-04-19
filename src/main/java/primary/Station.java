@@ -2,9 +2,11 @@ package primary;
 
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
-
+/*This class is to define the main abstract station object and its two subclasses, refuel and
+bus. The ID is determined by a random number from 1 to 1 million while
+the other attributes are defined by its subclass or a manager's input
+*/
 public abstract class Station {
-
     //Declare private Attributes
     private String name; //Name Attribute of Station
     private float longitude; //Longitude Attribute for location
@@ -27,6 +29,7 @@ public abstract class Station {
         this.name = name;
         this.longitude = longitude;
         this.latitude = latitude;
+        //set ID to random number from 1 to 1 million on construction
         this.ID = ThreadLocalRandom.current().nextInt(1, 1000000);
     }
 
@@ -62,14 +65,17 @@ public abstract class Station {
     public void setID(int ID) {
         this.ID = ID;
     }
+
     /*----------------- Station Subclass -----------------*/
     public static class BusStation extends Station {
+        //declare station type as subclass attribute, auto set it to bus
         private String type;
 
         public BusStation(String name, float latitude, float longitude) {
             super(name, longitude, latitude);
             this.type = "bus";
         }
+        /*----------------- Setters and Getters for Attributes -----------------*/
         @Override
         public String getType() {
             return "bus";
@@ -77,7 +83,9 @@ public abstract class Station {
     }
 
     public static class RefuelStation extends Station {
-        private String type ;
+        //declare station type as subclass attribute, auto set it to refuel
+        private String type;
+        //create a list of fuel types the station supports
         private ArrayList<String> fuelType;
 
         public RefuelStation(String name, float latitude, float longitude, ArrayList<String> fuelType) {
@@ -86,6 +94,7 @@ public abstract class Station {
             this.fuelType = fuelType;
         }
 
+        /*----------------- Setters and Getters for Attributes -----------------*/
         public void setFuelTypes(ArrayList<String> fuelType) {
             this.fuelType = fuelType;
         }
@@ -97,13 +106,6 @@ public abstract class Station {
         @Override
         public String getType() {
             return "refuel";
-        }
-
-        //Method for refueling a bus.
-        public void refuelBus(Bus bus) {
-            //Do we want to incorporate the get bus id from the bus class.
-            //add code that 'resets' the max range of the given bus to full
-            System.out.println("Bus has been refueled. \n Bus ID: " + bus.getBusID());
         }
     }
 }

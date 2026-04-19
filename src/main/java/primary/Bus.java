@@ -1,7 +1,10 @@
 package primary;
 
 import java.util.concurrent.ThreadLocalRandom;
-
+/*This class is to define the main abstract bus object and its two subclasses, city and
+long distance. The ID is determined by a random number from 1 to 1 million while
+the other attributes are defined by its subclass or a manager's input
+*/
 public abstract class Bus {
     
     //Declaring Attributes
@@ -10,7 +13,7 @@ public abstract class Bus {
     private String model; //Model of Bus
     private float tankSize; //Size of Tank in gallons
     private float fuelBurnRate; //Fuel burn rate in MPG
-    private float cruiseSpeed; // Most effiecent speed (miles per hour)
+    private float cruiseSpeed; // Most efficient speed (miles per hour)
 
     //abstract attribute to determine if bus takes diesel or unleaded
     public abstract String getFuel();

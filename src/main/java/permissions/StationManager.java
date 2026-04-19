@@ -7,9 +7,11 @@ import javax.swing.JOptionPane;
 import json.JsonUtilities;
 import primary.Station;
 import primary.User;
-
-
-
+/*
+Station Manager subclass of user that manages the database of stations
+The class holds all methods that have to do with modifying, saving and loading
+the list of stations.
+*/
 public class StationManager extends User{
     private static StationManager instance = new StationManager();
     //Created Arraylist for stations
