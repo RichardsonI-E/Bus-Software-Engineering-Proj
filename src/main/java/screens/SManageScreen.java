@@ -189,10 +189,9 @@ public class SManageScreen extends JPanel {
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int row = table.getSelectedRow();
-                System.out.println(row);
-                int id = (int) model.getValueAt(row, 0);
 
                 if (row != -1) {
+                    int id = (int) model.getValueAt(row, 0);
                     String nameV = model.getValueAt(row, 1).toString();
                     String latitudeV = model.getValueAt(row, 2).toString();
                     String longitudeV = model.getValueAt(row, 3).toString();
@@ -210,7 +209,7 @@ public class SManageScreen extends JPanel {
                         busType.setSelected(false);
                         refuelType.setSelected(true);
                         fuelHolder.setVisible(true);
-                        String[] fuelsV = model.getValueAt(row, 4).toString()
+                        String[] fuelsV = model.getValueAt(row, 5).toString()
                                 .replace(",", "").split(" ");
 
                         unleaded.setSelected(false);

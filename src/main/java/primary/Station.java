@@ -27,8 +27,8 @@ public abstract class Station {
     //Declare Constructor
     public Station(String name, float latitude, float longitude) {
         this.name = name;
-        this.longitude = longitude;
         this.latitude = latitude;
+        this.longitude = longitude;
         //set ID to random number from 1 to 1 million on construction
         this.ID = ThreadLocalRandom.current().nextInt(1, 1000000);
     }
@@ -72,7 +72,7 @@ public abstract class Station {
         private String type;
 
         public BusStation(String name, float latitude, float longitude) {
-            super(name, longitude, latitude);
+            super(name, latitude, longitude);
             this.type = "bus";
         }
         /*----------------- Setters and Getters for Attributes -----------------*/
@@ -89,7 +89,7 @@ public abstract class Station {
         private ArrayList<String> fuelType;
 
         public RefuelStation(String name, float latitude, float longitude, ArrayList<String> fuelType) {
-            super(name, longitude, latitude);
+            super(name, latitude, longitude);
             this.type = "refuel";
             this.fuelType = fuelType;
         }
