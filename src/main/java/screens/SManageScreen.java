@@ -29,7 +29,9 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AbstractDocument;
 
+import components.FilterString;
 import components.topTab;
 import permissions.StationManager;
 import primary.Station;
@@ -105,10 +107,13 @@ public class SManageScreen extends JPanel {
     }
 
     public SManageScreen(JFrame parent, CardLayout cl, JPanel container,
-            MapScreen mapscreen) {
+            MapScreen mapScreen) {
         this.mapScreen = mapScreen;
         this.cl = cl;
         this.container = container;
+
+        ((AbstractDocument) name.getDocument()).setDocumentFilter(
+                new FilterString());
 
         setLayout(new BorderLayout()); // set page layout as a borderlayout
 

@@ -1,1 +1,11 @@
-[{"fuelType":"diesel","busID":632354,"make":"new","model":"j56","tankSize":73000004.0,"fuelBurnRate":6.0,"cruiseSpeed":67.0}]
+[
+  {
+    "fuelType": "diesel",
+    "busID": 632354,
+    "make": "new",
+    "model": "j",
+    "tankSize": 73000.0,
+    "fuelBurnRate": 60.0,
+    "cruiseSpeed": 70.0
+  }
+]
