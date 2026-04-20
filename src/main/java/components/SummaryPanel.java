@@ -69,8 +69,10 @@ public class SummaryPanel extends JPanel {
     private JPanel createStopPanel(Station station, String prefix) {
         JPanel panel = new JPanel(new BorderLayout());
 
+        //add label with prefix, name and coordinates
         JLabel label = new JLabel(
-                prefix + station.getName() + " (" + station.getType() + ")");
+                prefix + station.getName() + " (" + station.getType() + ")"  + " ["
+                + station.getLatitude() + ", " + station.getLongitude() + "]");
         label.setHorizontalAlignment(JLabel.CENTER);
 
         panel.add(label, BorderLayout.CENTER);

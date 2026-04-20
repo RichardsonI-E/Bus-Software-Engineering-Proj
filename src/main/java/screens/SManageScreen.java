@@ -36,7 +36,6 @@ import primary.Station;
 import primary.Station.BusStation;
 import primary.Station.RefuelStation;
 
-// 24.5°N to 71.4°N latitude and 66.9°W to 172.5°E longitude
 public class SManageScreen extends JPanel {
 
     private CardLayout cl;
@@ -188,6 +187,7 @@ public class SManageScreen extends JPanel {
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int row = table.getSelectedRow();
+                System.out.println(row);
                 int id = (int) model.getValueAt(row, 0);
 
                 if (row != -1) {

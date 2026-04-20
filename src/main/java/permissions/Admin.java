@@ -78,4 +78,18 @@ public class Admin extends User {
 
         JsonUtilities.saveUsers(users);
     }
+
+    //login a user from the login card screen
+    public static User login(String username, String password){
+        for (User i : users){
+            if (i.getUsername().equalsIgnoreCase(username)){
+                if (i.getPassword().equals(password)){
+                    return i; //found matching credentials
+                }else{
+                    return null; //incorrect password
+                }
+            }
+        }
+        return null; //no matching usename found
+    }
 }

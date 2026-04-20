@@ -1,1 +1,1 @@
-[{"type":"bus","name":"A","latitude":25.8,"longitude":-75.0,"ID":259666},{"type":"bus","name":"B","latitude":60.0,"longitude":-120.0,"ID":738730},{"type":"bus","name":"C","latitude":50.0,"longitude":-100.0,"ID":651815}]
+[{"type":"bus","name":"A","longitude":25.8,"latitude":-75.0,"ID":259666},{"type":"bus","name":"B","longitude":-120.0,"latitude":60.0,"ID":738730},{"type":"bus","name":"C","longitude":-100.0,"latitude":50.0,"ID":651815},{"type":"bus","name":"D","longitude":29.4,"latitude":-150.0,"ID":758035}]

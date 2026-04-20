@@ -46,21 +46,21 @@ public class RouteLeg {
 
         //determine heading in cardinal and ordinal directions
         if (degrees == 0) {
-            return "North";
+            return degrees + "° North";
         } else if (degrees == 90) {
-            return "East";
+            return degrees + "° East";
         } else if (degrees == 180) {
-            return "South";
+            return degrees + "° South";
         } else if (degrees == 270) {
-            return "West";
+            return degrees + "° West";
         } else if (0 < degrees && degrees < 90) {
-            return "North-East";
+            return degrees + "° North-East";
         } else if (90 < degrees && degrees < 180) {
-            return "South-East";
+            return degrees + "° South-East";
         } else if (180 < degrees && degrees < 270) {
-            return "South-West";
+            return degrees + "° South-West";
         } else {
-            return "North-West";
+            return degrees + "° North-West";
         }
     }
 
