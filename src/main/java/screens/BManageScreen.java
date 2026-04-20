@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.MaskFormatter;
 
 import components.topTab;
 import permissions.BusManager;
@@ -22,13 +23,16 @@ public class BManageScreen extends JPanel {
     private CardLayout cl;
     private JPanel container;
 
+    //custom mask to limit characters
+    private MaskFormatter nameMask;
+
     // ---------- Form Fields ----------
     //format textfields as number values
     private NumberFormat num = NumberFormat.getNumberInstance();
 
-    //declare text fields for each bus attribute (formatted for number fields)
-    private JTextField make = new JTextField();
-    private JTextField model = new JTextField();
+    //declare text fields for each bus attribute (formatted respectively)
+    private JFormattedTextField make = new JFormattedTextField(nameMask);
+    private JFormattedTextField model = new JFormattedTextField(nameMask);
     private JFormattedTextField tankSize = new JFormattedTextField(num);
     private JFormattedTextField fuelBurn = new JFormattedTextField(num);
     private JFormattedTextField cruiseSpeed = new JFormattedTextField(num);
@@ -55,6 +59,12 @@ public class BManageScreen extends JPanel {
         //add manage buses version of top tab
         add(new topTab("Manage Buses", cl, container, this), BorderLayout.NORTH);
         add(createMainContent(), BorderLayout.CENTER);
+
+        try {
+            nameMask = new MaskFormatter("****************");
+        } catch (java.text.ParseException e) {
+            e.printStackTrace();
+        }
 
         //add listener to refresh table when card is active
         addComponentListener(new ComponentAdapter() {
