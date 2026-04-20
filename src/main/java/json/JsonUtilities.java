@@ -20,7 +20,7 @@ public class JsonUtilities {
 
     // method to save stations to "stations.json"
     public static void saveStations(List<Station> stations) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try (FileWriter writer = new FileWriter("src/main/java/databases/stations.json")) {
             gson.toJson(stations, writer);
@@ -45,7 +45,7 @@ public class JsonUtilities {
 
     // method to save users to "users.json"
     public static void saveUsers(List<User> users) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try (FileWriter writer = new FileWriter("src/main/java/databases/users.json")) {
             gson.toJson(users, writer);
@@ -56,7 +56,7 @@ public class JsonUtilities {
 
     // method to load users from "users.json"
     public static List<User> loadUsers() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try (FileReader reader = new FileReader("src/main/java/databases/users.json")) {
             return gson.fromJson(reader, new TypeToken<List<User>>() {
@@ -69,7 +69,7 @@ public class JsonUtilities {
 
     // method to save stations to "buses.json"
     public static void saveBuses(List<Bus> buses) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try (FileWriter writer = new FileWriter("src/main/java/databases/buses.json")) {
             gson.toJson(buses, writer);

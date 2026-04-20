@@ -2,7 +2,6 @@ package screens;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Font;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
@@ -12,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import components.SummaryPanel;
 import components.topTab;
@@ -24,88 +24,80 @@ import permissions.StationManager;
 import primary.RoutePlanner;
 import primary.Station;
 
+/*
+This class uses javafx to emulate html and js code in order
+to display a web map of the world, the user can view the current stations in
+the database on the map (blue for bus, yellow for refuel), and the user is
+automatically redirected here to view their route once submitted
+*/
 public class MapScreen extends JPanel {
+    //get cardlayout and container from parent
+    private final CardLayout cl;
+    private final JPanel container;
 
-    private CardLayout cl;
-    private JPanel container;
+    //declare summary panel and list of stations in route
+    private final SummaryPanel summaryPanel = new SummaryPanel();
+    private final List<Station> route = new ArrayList<>();
 
-    private MapScreen mapScreen;
-    private List<Station> route = new ArrayList<>();
-    private SummaryPanel summaryPanel = new SummaryPanel();
-
-    private Font subTitle = new Font("Arial", Font.BOLD, 20);
-
+    //create a javafx panel and webengine to launch map
     private JFXPanel content;
-    private boolean mapInitialized = false; // ensure map initializes only once
     private WebEngine engine;
 
-    public void setRoute(List<Station> route, RoutePlanner planner) {
-        this.route = route;
+    //variable to determine if map has been activated
+    private boolean mapInitialized = false;
 
-        if (mapInitialized) {
-            refreshMap();
-        }
-
-        summaryPanel.updateSummary(planner);
-    }
-
-    private void refreshMap() {
-        if (!mapInitialized || engine == null || route == null || route.size() < 2) {
-            return;
-        }
-
-        Platform.runLater(() -> {
-            StringBuilder js = new StringBuilder();
-
-            js.append("""
-            if (window.routeLine) {
-                map.removeLayer(window.routeLine);
-            }
-        """);
-
-            js.append("window.routeLine = L.polyline([");
-
-            for (Station s : route) {
-                js.append(String.format("[%f, %f],",
-                        s.getLatitude(),
-                        s.getLongitude()));
-            }
-
-            js.append("], {color: 'blue'}).addTo(map);\n");
-
-            js.append("map.fitBounds(window.routeLine.getBounds());");
-
-            engine.executeScript(js.toString());
-        });
-    }
-
+    // Constructor
     public MapScreen(JFrame parent, CardLayout cl, JPanel container) {
         this.cl = cl;
         this.container = container;
 
-        setLayout(new BorderLayout());//set page layout as a borderlayout
+        setLayout(new BorderLayout());
 
+        //create map version of top tab and add to pane
         topTab tTab = new topTab("Map", cl, container, this);
+        add(tTab, BorderLayout.NORTH);
 
-        // --- Content Panel (JavaFX WebView) ---
         content = new JFXPanel();
-        content.setLayout(null);
-        summaryPanel.setBounds(10, content.getHeight() - 120, 300, 100);
-        content.add(summaryPanel);
 
-        // --- Listen for Swing component being shown (important for CardLayout) ---
-        this.addComponentListener(new ComponentAdapter() {
+        //layer the pane so summary can overlay the map
+        JLayeredPane layeredPane = createLayeredPane();
+        add(layeredPane, BorderLayout.CENTER);
+
+        // Initialize map when screen becomes visible
+        addComponentListener(new ComponentAdapter() {
             @Override
             public void componentShown(ComponentEvent e) {
-                // Only initialize once
-                MapScreen.this.removeComponentListener(this);
-                SwingUtilities.invokeLater(() -> initializeMap(content));
+                removeComponentListener(this);
+                SwingUtilities.invokeLater(() -> initializeMap());
             }
         });
+    }
 
-        add(tTab, BorderLayout.NORTH);
+    //method to draw the user route if it has been submitted
+    public void setRoute(List<Station> route, RoutePlanner planner) {
+        this.route.clear();
+        this.route.addAll(route);
+
+        summaryPanel.updateSummary(planner);
+
+        if (mapInitialized) {
+            refreshMap();
+        }
+    }
+
+    //public method so other classes can refresh the map
+    public void refreshStations() {
+        updateStations();
+    }
+
+    private JLayeredPane createLayeredPane() {
         JLayeredPane layeredPane = new JLayeredPane();
 
+        //set map as man content with summary as a palette
+        layeredPane.add(content, JLayeredPane.DEFAULT_LAYER);
+        layeredPane.add(summaryPanel, JLayeredPane.PALETTE_LAYER);
+
+        //redefine content and summary position when content is resized
         layeredPane.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -113,86 +105,218 @@ public class MapScreen extends JPanel {
                 int h = layeredPane.getHeight();
 
                 content.setBounds(0, 0, w, h);
-
                 summaryPanel.setBounds(10, h - 170, 250, 150);
             }
         });
 
-        content.setBounds(0, 0, 800, 600); //resize later
-        summaryPanel.setBounds(10, 450, 300, 100);
-
-        layeredPane.add(content, JLayeredPane.DEFAULT_LAYER);
-        layeredPane.add(summaryPanel, JLayeredPane.PALETTE_LAYER);
-
-        add(layeredPane, BorderLayout.CENTER);
-        revalidate();
-        repaint();
+        return layeredPane;
     }
 
-    private void initializeMap(JFXPanel content) {
-        // Ensure JFXPanel is initialized
+    //start the map in content panel
+    private void initializeMap() {
+        //wrap in runlater to prevent early launch
         Platform.runLater(() -> {
             WebView webView = new WebView();
-            this.engine = webView.getEngine();
+            engine = webView.getEngine();
+
+            //load the content as HTML
             Scene scene = new Scene(webView);
             webView.prefWidthProperty().bind(scene.widthProperty());
             webView.prefHeightProperty().bind(scene.heightProperty());
 
-            //Loop to add all stations in database to the map
-            StringBuilder stationMarkers = new StringBuilder();
+            engine.loadContent(getHTML());
 
-            for (Station s : StationManager.getStations()) {
-                stationMarkers.append(String.format(
-                        "L.marker([%f, %f]).addTo(map).bindPopup('%s');\n",
-                        s.getLatitude(),
-                        s.getLongitude(),
-                        s.getName()
-                ));
+            content.setScene(scene);
+
+            //wait until engine is loaded before starting up map
+            engine.getLoadWorker().stateProperty().addListener((obs, o, n) -> {
+                if (n == javafx.concurrent.Worker.State.SUCCEEDED) {
+                    mapInitialized = true;
+                    waitForMap();
+                }
+            });
+        });
+    }
+
+    private void waitForMap() {
+        //delay method
+        Platform.runLater(() -> {
+            try {
+                Object ready = engine.executeScript("window.javaMapReady === true");
+
+                //if the window is ready to load map, start process
+                if (Boolean.TRUE.equals(ready)) {
+                    updateStations();
+                    refreshMap();
+                } else {
+                    retry();
+                }
+
+            } catch (Exception e) {
+                retry();
+            }
+        });
+    }
+
+    //method to wait before trying to load map again
+    private void retry() {
+        new Timer(100, e -> {
+            ((Timer) e.getSource()).stop();
+            waitForMap();
+        }).start();
+    }
+
+    private void updateStations() {
+        //if the engine/map hasnt loaded, abort
+        if (!mapInitialized || engine == null)
+            return;
+
+        Platform.runLater(() -> {
+            try {
+                StringBuilder js = new StringBuilder();
+
+                //rewrite layer that shows stations in js
+                js.append("""
+                            if (window.stationLayer) {
+                                map.removeLayer(window.stationLayer);
+                            }
+                            window.stationLayer = L.layerGroup().addTo(map);
+                        """);
+
+                //loop through stations
+                for (Station s : StationManager.getStations()) {
+                    //if station is refuel type, set color as yelllow
+                    String color = (s instanceof Station.RefuelStation) ? "yellow" : "blue";
+
+                    //add markers for station on the map with respective
+                    //location and name
+                    js.append(String.format("""
+                                L.circleMarker([%f, %f], {
+                                    color: '%s',
+                                    radius: 6
+                                }).addTo(window.stationLayer)
+                                .bindPopup('%s');
+                            """,
+                            s.getLatitude(),
+                            s.getLongitude(),
+                            color,
+                            escapeJS(s.getName())));
+                }
+
+                //execute the string as js code
+                engine.executeScript(js.toString());
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    //method to update map if parameters have changed
+    private void refreshMap() {
+        //abort if map/engine isn't loaded or less than 2 stations in route
+        if (!mapInitialized || engine == null || route.size() < 2)
+            return;
+
+        Platform.runLater(() -> {
+            StringBuilder js = new StringBuilder();
+
+            //remove and rewrite layer that holds route
+            js.append("""
+                        if (window.routeLine) {
+                            map.removeLayer(window.routeLine);
+                        }
+                    """);
+
+            js.append("window.routeLine = L.polyline([");
+
+            //for each station in route, add as point in route
+            for (int i = 0; i < route.size(); i++) {
+                Station s = route.get(i);
+                js.append(String.format("[%f, %f]", s.getLatitude(), s.getLongitude()));
+                if (i < route.size() - 1)
+                    js.append(",");
             }
 
-            // HTML content with Leaflet
-            String htmlCode = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/leaflet.css"/>
-                <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-                <style>
-                    html, body, #map { margin:0; padding:0; width:100%%; height:100%%; }
-                </style>
-            </head>
-            <body>
-                <div id="map"></div>
-                <script>
-                    function initMap() {
+            //add the route line in green and set map bounds to the route size
+            js.append("], {color: 'green'}).addTo(map);");
+            js.append("map.fitBounds(window.routeLine.getBounds());");
+
+            //execute the string as js code
+            engine.executeScript(js.toString());
+        });
+    }
+
+    //add escape to prevent error in station name
+    private String escapeJS(String s) {
+        return s.replace("'", "\\'");
+    }
+
+    //method that saves custom html code for engine to run
+    private String getHTML() {
+        return """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/leaflet.css"/>
+                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+                    <style>
+                        html, body {
+                            margin:0;
+                            padding:0;
+                            width:100%;
+                            height:100%;
+                        }
+
+                        #map {
+                            width:100%;
+                            height:100%;
+                            position:absolute;
+                        }
+
+                        #coords {
+                            position:absolute;
+                            top:10px;
+                            right:10px;
+                            background:rgba(255,255,255,0.9);
+                            padding:6px 12px;
+                            border-radius:6px;
+                            font-size:12px;
+                            font-family:Arial;
+                            box-shadow:0 2px 6px rgba(0,0,0,0.3);
+                            z-index:1000;
+                            pointer-events:none;
+                        }
+                    </style>
+                </head>
+
+                <body>
+                    <div id="coords">Lat: -- , Long: --</div>
+                    <div id="map"></div>
+
+                    <script>
+        //--------------set the window view to the center of the U.S.
                         window.map = L.map('map').setView([44, -100], 5);
 
+        //--------------add attribution to corner of the content pane
                         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                             attribution: 'Map data © OpenStreetMap'
                         }).addTo(map);
 
-                        %s
+        //--------------Add listener to find coordinates mouse is located
+                        map.on('mousemove', function(e) {
+                            const lat = e.latlng.lat.toFixed(5);
+                            const lng = e.latlng.lng.toFixed(5);
 
-                        // Handle resizing after panel shows
-                        window.addEventListener('resize', () => map.invalidateSize());
-                        setTimeout(() => map.invalidateSize(), 200);
-                    }
-                    window.onload = initMap;
-                </script>
-            </body>
-            </html>
-            """.formatted(stationMarkers.toString());
+        //------------------show the found coordinates in the pane
+                            document.getElementById('coords').innerHTML =
+                                "Lat: " + lat + " | Long: " + lng;
+                        });
 
-            engine.loadContent(htmlCode);
-            content.setScene(scene);
-
-            //wait until webview finishes
-            engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-                if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
-                    mapInitialized = true;
-                    refreshMap();
-                }
-            });
-        });
+        //--------------declare the map is ready to run
+                        window.javaMapReady = true;
+                    </script>
+                </body>
+                </html>
+                """;
     }
 }

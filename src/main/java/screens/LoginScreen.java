@@ -1,8 +1,29 @@
 package screens;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import components.Session;
@@ -125,26 +146,33 @@ public class LoginScreen extends JPanel {
 
     // ---------- LOGIN LOGIC ----------
     private void handleLogin(JFrame parent) {
+        //get contents of username and password field
         String username = userField.getText();
         String password = new String(passField.getPassword());
 
+        //send to admin.login method to verify
         User user = Admin.login(username, password);
 
+        //if it returns a user, set as active user and go to home
         if (user != null) {
             Session.setUser(user);
             cl.show(container, "home");
         } else {
-            JOptionPane.showMessageDialog(parent, "Invalid username or password");
+            //display warning for incorrect credentials
+            JOptionPane.showMessageDialog(parent,
+                "Invalid username or password");
         }
     }
 
     // ---------- SIGNUP ----------
-
+    //create the hybrid button/label for sign up
     private JLabel createSignupLabel(JFrame parent) {
+        //set text, color and alignment
         JLabel label = new JLabel("Create an Account");
         label.setForeground(Color.BLUE);
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        //change the color if hovered over
         label.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 label.setForeground(Color.DARK_GRAY);
@@ -154,6 +182,7 @@ public class LoginScreen extends JPanel {
                 label.setForeground(Color.BLUE);
             }
 
+            //trigger dialog if clicked
             public void mouseClicked(MouseEvent e) {
                 openSignupDialog(parent);
             }
@@ -162,12 +191,15 @@ public class LoginScreen extends JPanel {
         return label;
     }
 
+    //set up and display sign up dialog box
     private void openSignupDialog(JFrame parent) {
+        //create text fields
         JTextField first = new JTextField();
         JTextField last = new JTextField();
         JPasswordField pass = new JPasswordField();
         JPasswordField confirm = new JPasswordField();
 
+        //add fields and respective labels to form
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.add(new JLabel("First Name:"));
         panel.add(first);
@@ -178,27 +210,33 @@ public class LoginScreen extends JPanel {
         panel.add(new JLabel("Confirm Password:"));
         panel.add(confirm);
 
+        //create confirmation options to confirm or cancel
         int result = JOptionPane.showConfirmDialog(parent, panel, "Sign Up",
                 JOptionPane.OK_CANCEL_OPTION);
 
+        //if confirmed, trigger sign up method
         if (result == JOptionPane.OK_OPTION) {
             handleSignup(parent, first.getText(), last.getText(), pass, confirm);
         }
     }
 
+    //handles verifying and adding a new user
     private void handleSignup(JFrame parent, String first, String last,
             JPasswordField pass, JPasswordField confirm) {
 
+        //if name fields are empty, show warning
         if (first.isEmpty() || last.isEmpty()) {
             JOptionPane.showMessageDialog(parent, "All fields required");
             return;
         }
 
+        //if password field isnt the same as confirmation, show warning
         if (!java.util.Arrays.equals(pass.getPassword(), confirm.getPassword())) {
             JOptionPane.showMessageDialog(parent, "Passwords do not match");
             return;
         }
 
+        //call create Admin.createUser to add to database
         String username = Admin.createUser(first, last, new String(pass.getPassword()));
 
         //confirm an account has been created & show username

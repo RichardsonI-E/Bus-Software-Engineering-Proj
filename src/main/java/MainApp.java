@@ -46,7 +46,7 @@ class StartInterface{
 
         SettingsScreen settingsScreen = new SettingsScreen(app, layout, container);
 
-        SManageScreen sManageScreen = new SManageScreen(app, layout, container);
+        SManageScreen sManageScreen = new SManageScreen(app, layout, container, mapScreen);
 
         BManageScreen bManageScreen = new BManageScreen(app, layout, container);
 

@@ -37,7 +37,7 @@ import primary.Station.BusStation;
 import primary.Station.RefuelStation;
 
 public class SManageScreen extends JPanel {
-
+    private MapScreen mapScreen;
     private CardLayout cl;
     private JPanel container;
 
@@ -45,7 +45,7 @@ public class SManageScreen extends JPanel {
 
     NumberFormat num = NumberFormat.getNumberInstance();
 
-    //add fields in advance
+    // add fields in advance
     JTextField name = new JTextField();
     JFormattedTextField longitude = new JFormattedTextField(num);
     JFormattedTextField latitude = new JFormattedTextField(num);
@@ -57,7 +57,7 @@ public class SManageScreen extends JPanel {
     JCheckBox unleaded = new JCheckBox("Unleaded", true);
     JCheckBox diesel = new JCheckBox("Diesel", true);
 
-    //add a selected station for manager to update or delete
+    // add a selected station for manager to update or delete
     Station selected = null;
 
     private boolean verifyCoords(float x, float y) {
@@ -70,12 +70,12 @@ public class SManageScreen extends JPanel {
 
         for (Station s : StationManager.getStations()) {
             if (s instanceof Station.BusStation) {
-                model.addRow(new Object[]{
-                    s.getID(),
-                    s.getName(),
-                    s.getLatitude(),
-                    s.getLongitude(),
-                    s.getType()
+                model.addRow(new Object[] {
+                        s.getID(),
+                        s.getName(),
+                        s.getLatitude(),
+                        s.getLongitude(),
+                        s.getType()
                 });
             } else if (s instanceof Station.RefuelStation r) {
                 StringBuilder fuelTypes = new StringBuilder();
@@ -85,13 +85,13 @@ public class SManageScreen extends JPanel {
                         fuelTypes.append(", ");
                     }
                 }
-                model.addRow(new Object[]{
-                    s.getID(),
-                    s.getName(),
-                    s.getLatitude(),
-                    s.getLongitude(),
-                    s.getType(),
-                    fuelTypes.toString()
+                model.addRow(new Object[] {
+                        s.getID(),
+                        s.getName(),
+                        s.getLatitude(),
+                        s.getLongitude(),
+                        s.getType(),
+                        fuelTypes.toString()
                 });
             }
         }
@@ -104,11 +104,13 @@ public class SManageScreen extends JPanel {
         selected = null;
     }
 
-    public SManageScreen(JFrame parent, CardLayout cl, JPanel container) {
+    public SManageScreen(JFrame parent, CardLayout cl, JPanel container,
+            MapScreen mapscreen) {
+        this.mapScreen = mapScreen;
         this.cl = cl;
         this.container = container;
 
-        setLayout(new BorderLayout()); //set page layout as a borderlayout
+        setLayout(new BorderLayout()); // set page layout as a borderlayout
 
         topTab tTab = new topTab("Manage Stations", cl, container, this);
 
@@ -153,21 +155,21 @@ public class SManageScreen extends JPanel {
         fuelHolder.setAlignmentX(Component.CENTER_ALIGNMENT);
         fuelHolder.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
 
-        //button to update the station's account information
+        // button to update the station's account information
         JButton update = new JButton("Add/Update Station");
         update.setAlignmentX(Component.CENTER_ALIGNMENT);
         update.setBackground(Color.BLUE);
         update.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
 
-        //button to delete the station's account
+        // button to delete the station's account
         JButton delete = new JButton("Delete Station");
         delete.setAlignmentX(Component.CENTER_ALIGNMENT);
         delete.setBackground(Color.RED);
         delete.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
 
-        //create table of StationManager.getStations() for manager to select
-        String[] col = {"ID", "Name", "Latitude", "Longitude",
-            "Station Type", "Supported Fuel(s)"};
+        // create table of StationManager.getStations() for manager to select
+        String[] col = { "ID", "Name", "Latitude", "Longitude",
+                "Station Type", "Supported Fuel(s)" };
 
         DefaultTableModel model = new DefaultTableModel(col, 0) {
             @Override
@@ -183,7 +185,7 @@ public class SManageScreen extends JPanel {
         scroll.setPreferredSize(new Dimension(500, 200));
         initTable(model);
 
-        //Add a listener for table: when a station is selected, fill all fields
+        // Add a listener for table: when a station is selected, fill all fields
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int row = table.getSelectedRow();
@@ -230,7 +232,7 @@ public class SManageScreen extends JPanel {
             }
         });
 
-        //listener for station type radiogroup:
+        // listener for station type radiogroup:
         ActionListener radioListener = e -> {
             JRadioButton rb = (JRadioButton) e.getSource();
             if (rb.isSelected()) {
@@ -246,7 +248,7 @@ public class SManageScreen extends JPanel {
         busType.addActionListener(radioListener);
         refuelType.addActionListener(radioListener);
 
-        //add listener for update button
+        // add listener for update button
         update.addActionListener(e -> {
             if (selected != null) {
                 float lat = Float.parseFloat(latitude.getText());
@@ -257,11 +259,12 @@ public class SManageScreen extends JPanel {
                         BusStation newS = new BusStation(
                                 name.getText(),
                                 lat,
-                                lon
-                        );
+                                lon);
                         newS.setID(selected.getID());
 
                         StationManager.updateStation(newS);
+                        // update map with new station data
+                        mapScreen.refreshStations();
                     } else {
 
                         ArrayList<String> fuels = new ArrayList<>();
@@ -276,11 +279,12 @@ public class SManageScreen extends JPanel {
                                 name.getText(),
                                 lat,
                                 lon,
-                                fuels
-                        );
+                                fuels);
 
                         newS.setID(selected.getID());
                         StationManager.updateStation(newS);
+                        // update map with new station data
+                        mapScreen.refreshStations();
                     }
                 } else {
                     JOptionPane.showMessageDialog(null,
@@ -300,10 +304,11 @@ public class SManageScreen extends JPanel {
                             BusStation newS = new BusStation(
                                     name.getText(),
                                     lat,
-                                    lon
-                            );
+                                    lon);
 
                             StationManager.addStation(newS);
+                            // update map with new station data
+                            mapScreen.refreshStations();
                         } else {
 
                             ArrayList<String> fuels = new ArrayList<>();
@@ -318,27 +323,27 @@ public class SManageScreen extends JPanel {
                                     name.getText(),
                                     lat,
                                     lon,
-                                    fuels
-                            );
+                                    fuels);
 
                             StationManager.addStation(newS);
+                            // update map with new station data
+                            mapScreen.refreshStations();
                         }
                     }
-            }else{
-                JOptionPane.showMessageDialog(null,
+                } else {
+                    JOptionPane.showMessageDialog(null,
                             "Coordinates are out of service area.",
                             "Invalid Coordinates",
                             JOptionPane.WARNING_MESSAGE);
-            }
+                }
             }
             clearForm();
             initTable(model);
             form.revalidate();
             form.repaint();
-        }
-        );
+        });
 
-        //add listener for delete button
+        // add listener for delete button
         delete.addActionListener(e -> {
             if (selected != null) {
                 int response = JOptionPane.showConfirmDialog(null,
@@ -347,18 +352,20 @@ public class SManageScreen extends JPanel {
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                 if (response == JOptionPane.YES_OPTION) {
                     StationManager.deleteStation(selected);
+                    // update map with new station data
+                    mapScreen.refreshStations();
                     selected = null;
                     clearForm();
                     initTable(model);
                     form.revalidate();
                     form.repaint();
                 } else {
-                    //do nothing, pane will close
+                    // do nothing, pane will close
                 }
             }
         });
 
-        //failsafe: reinitialize table whenever screen is reentered
+        // failsafe: reinitialize table whenever screen is reentered
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentShown(ComponentEvent e) {
@@ -366,7 +373,7 @@ public class SManageScreen extends JPanel {
             }
         });
 
-        //add all elements to the form
+        // add all elements to the form
         form.add(nameTxt, f);
         f.gridy = 1;
         form.add(name, f);
@@ -398,8 +405,7 @@ public class SManageScreen extends JPanel {
         JSplitPane split = new JSplitPane(
                 JSplitPane.VERTICAL_SPLIT,
                 stationForm,
-                scroll
-        );
+                scroll);
         split.setResizeWeight(0.6);
 
         add(split, BorderLayout.CENTER);
