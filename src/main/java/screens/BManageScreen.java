@@ -1,30 +1,12 @@
 package screens;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.List;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -34,76 +16,78 @@ import primary.Bus;
 import primary.Bus.CityBus;
 import primary.Bus.LongDisBus;
 
-// 24.5°N to 71.4°N latitude and 66.9°W to 172.5°E longitude
 public class BManageScreen extends JPanel {
 
+    // get layout and container from parent
     private CardLayout cl;
     private JPanel container;
 
-    NumberFormat num = NumberFormat.getNumberInstance();
+    // ---------- Form Fields ----------
+    //format textfields as number values
+    private NumberFormat num = NumberFormat.getNumberInstance();
 
-    //add fields in advance
-    JTextField make = new JTextField();
-    JTextField model = new JTextField();
-    JFormattedTextField tankSize = new JFormattedTextField(num);
-    JFormattedTextField fuelBurn = new JFormattedTextField(num);
-    JFormattedTextField cruiseSpeed = new JFormattedTextField(num);
+    //declare text fields for each bus attribute (formatted for number fields)
+    private JTextField make = new JTextField();
+    private JTextField model = new JTextField();
+    private JFormattedTextField tankSize = new JFormattedTextField(num);
+    private JFormattedTextField fuelBurn = new JFormattedTextField(num);
+    private JFormattedTextField cruiseSpeed = new JFormattedTextField(num);
 
-    ButtonGroup sType = new ButtonGroup();
-    JRadioButton cityType = new JRadioButton("City");
-    JRadioButton longDistType = new JRadioButton("Long Distance", true);
+    //add radio button group for city or long distance bus
+    private ButtonGroup sType = new ButtonGroup();
+    private JRadioButton cityType = new JRadioButton("City");
+    private JRadioButton longDistType = new JRadioButton("Long Distance", true);
 
-    //add a selected bus for manager to update or delete
-    Bus selected = null;
+    //set currently selected bus as variable
+    private Bus selected = null;
 
-    private void initTable(DefaultTableModel model) {
-        model.setRowCount(0); // clear table
+    // ---------- Declare Table ----------
+    private DefaultTableModel tModel;
+    private JTable table;
 
-        for (Bus s : BusManager.getBuses()) {
-            if (s instanceof Bus.CityBus) {
-                model.addRow(new Object[]{
-                    s.getBusID(),
-                    s.getMake(),
-                    s.getModel(),
-                    s.getTankSize(),
-                    s.getFuelBurnRate(),
-                    s.getCruiseSpeed(),
-                    "City"
-                });
-            } else if (s instanceof Bus.LongDisBus r) {
-                model.addRow(new Object[]{
-                    s.getBusID(),
-                    s.getMake(),
-                    s.getModel(),
-                    s.getTankSize(),
-                    s.getFuelBurnRate(),
-                    s.getCruiseSpeed(),
-                    "Long Distance"
-                });
-            }
-        }
-    }
-
-    private void clearForm() {
-        make.setText("");
-        model.setText("");
-        tankSize.setText("");
-        fuelBurn.setText("");
-        cruiseSpeed.setText("");
-        selected = null;
-    }
-
+    // ---------- Constructor ----------
     public BManageScreen(JFrame parent, CardLayout cl, JPanel container) {
         this.cl = cl;
         this.container = container;
 
-        setLayout(new BorderLayout()); //set page layout as a borderlayout
+        setLayout(new BorderLayout());
 
-        topTab tTab = new topTab("Manage Buses", cl, container, this);
+        //add manage buses version of top tab
+        add(new topTab("Manage Buses", cl, container, this), BorderLayout.NORTH);
+        add(createMainContent(), BorderLayout.CENTER);
 
-        // define and add form for Bus Settings
-        JPanel form = new JPanel();
-        form.setLayout(new GridBagLayout());
+        //add listener to refresh table when card is active
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                refreshTable();
+            }
+        });
+    }
+
+    // ---------- UI Builders ----------
+
+    //add form and table of buses, then add to split pane
+    private JSplitPane createMainContent() {
+        JPanel form = createFormPanel();
+        JScrollPane tablePane = createTablePanel();
+
+        JSplitPane split = new JSplitPane(
+                JSplitPane.VERTICAL_SPLIT,
+                new JScrollPane(form),
+                tablePane
+        );
+
+        split.setResizeWeight(0.6);
+        return split;
+    }
+
+    //create form and components
+    private JPanel createFormPanel() {
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBorder(new EmptyBorder(20, 60, 20, 60));
+
+        //define constraints of form
         GridBagConstraints f = new GridBagConstraints();
         f.gridx = 0;
         f.gridy = 0;
@@ -111,247 +95,208 @@ public class BManageScreen extends JPanel {
         f.weightx = 1.0;
         f.insets = new Insets(5, 0, 5, 0);
 
-        form.setBorder(new EmptyBorder(20, 60, 20, 60));
-        form.setOpaque(true);
+        //add each (editable) bus attribute as a form field with appropriate label
+        addFormField(form, f, "Make:", make);
+        addFormField(form, f, "Model:", model);
+        addFormField(form, f, "Tank Size (Gallons):", tankSize);
+        addFormField(form, f, "Fuel Burn Rate (MPG):", fuelBurn);
+        addFormField(form, f, "Cruise Speed (MPH):", cruiseSpeed);
 
-        // define entries and labels for the bus' make, usermake, and password
-        JLabel makeTxt = new JLabel("Make:");
-        makeTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
-        make.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        //add radio buttons
+        form.add(createRadioPanel(), f);
+        f.gridy++;
 
-        JLabel modelTxt = new JLabel("Model:");
-        modelTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
-        model.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        //add buttons
+        form.add(createButtonPanel(), f);
 
-        JLabel tankSizeTxt = new JLabel("Tank Size (in Gallons):");
-        tankSizeTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
-        tankSize.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        return form;
+    }
 
-        JLabel fuelBurnTxt = new JLabel("Fuel Burn Rate (in Miles per Gallon):");
-        fuelBurnTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
-        fuelBurn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+    //method to add text fields for each component (and respective label)
+    private void addFormField(JPanel panel, GridBagConstraints f, String labelText, JComponent field) {
+        JLabel label = new JLabel(labelText);
+        panel.add(label, f);
+        f.gridy++;
 
-        JLabel cruiseSpeedTxt = new JLabel("Cruise Speed (in Miles per Hour):");
-        cruiseSpeedTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
-        cruiseSpeed.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        panel.add(field, f);
+        f.gridy++;
+    }
 
+    //create custom panel to hold radio buttons, and add both buttons to group
+    private JPanel createRadioPanel() {
         sType.add(cityType);
         sType.add(longDistType);
-        cityType.setAlignmentX(Component.CENTER_ALIGNMENT);
-        longDistType.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JPanel busRadio = new JPanel();
-        busRadio.setAlignmentX(Component.CENTER_ALIGNMENT);
-        busRadio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        busRadio.add(cityType);
-        busRadio.add(longDistType);
+        JPanel panel = new JPanel();
+        panel.add(cityType);
+        panel.add(longDistType);
 
-        //button to update the bus' account information
+        return panel;
+    }
+
+    //create buttons for form
+    private JPanel createButtonPanel() {
+        //create update/add and delete buttons
         JButton update = new JButton("Add/Update Bus");
-        update.setAlignmentX(Component.CENTER_ALIGNMENT);
-        update.setBackground(Color.BLUE);
-        update.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
-
-        //button to delete the bus' account
         JButton delete = new JButton("Delete Bus");
-        delete.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        //set add/update button to blue, and delete to red
+        update.setBackground(Color.BLUE);
         delete.setBackground(Color.RED);
-        delete.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
 
-        //create table of BusManager.getBuses() for manager to select
-        String[] col = {"ID", "Make", "Model", "Tank Size (Gallons)",
-            "Fuel Burn Rate (Miles per Gallon)", "Cruise Speed", "Bus Type"};
+        //add update listeners to both buttons
+        update.addActionListener(e -> handleUpdate());
+        delete.addActionListener(e -> handleDelete());
 
-        DefaultTableModel tModel = new DefaultTableModel(col, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                // Return false to make all cells non-editable
-                return false;
-            }
+        //add buttons to custom panel
+        JPanel panel = new JPanel();
+        panel.add(update);
+        panel.add(delete);
+
+        return panel;
+    }
+
+    //create a table to hold list of buses
+    private JScrollPane createTablePanel() {
+        //add 7 column to sort bus attributes
+        String[] col = { "ID", "Make", "Model", "Tank Size", "Fuel Burn", "Speed", "Type" };
+
+        //prevent all cells in table from being edited
+        tModel = new DefaultTableModel(col, 0) {
+            public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        JTable table = new JTable(tModel);
+        //set model of table and add listener for selected row
+        table = new JTable(tModel);
+        table.getSelectionModel().addListSelectionListener(e -> handleSelection());
 
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setPreferredSize(new Dimension(500, 200));
-        initTable(tModel);
+        //refresh table with new parameters
+        refreshTable();
 
-        //Add a listener for table: when a bus is selected, fill all fields
-        table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                int row = table.getSelectedRow();
+        return new JScrollPane(table);
+    }
 
-                if (row != -1) {
-                    int id = (int) tModel.getValueAt(row, 0);
-                    String makeV = tModel.getValueAt(row, 1).toString();
-                    String modelV = tModel.getValueAt(row, 2).toString();
-                    float tankSizeV = (float) ((Number) (tModel.getValueAt(row, 3))).floatValue();
-                    float fuelBurnV = (float) ((Number) (tModel.getValueAt(row, 4))).floatValue();
-                    float cruiseSpeedV = (float) ((Number) (tModel.getValueAt(row, 5))).floatValue();
-                    String busType = tModel.getValueAt(row, 6).toString();
+    // ---------- Logic ----------
 
-                    make.setText(makeV);
-                    model.setText(modelV);
-                    tankSize.setText(String.valueOf(tankSizeV));
-                    fuelBurn.setText(String.valueOf(fuelBurnV));
-                    cruiseSpeed.setText(String.valueOf(cruiseSpeedV));
+    //reformat the table
+    private void refreshTable() {
+        tModel.setRowCount(0);
 
-                    if (busType.equalsIgnoreCase("city")) {
-                        cityType.setSelected(true);
-                        longDistType.setSelected(false);
-                    } else {
-                        cityType.setSelected(false);
-                        longDistType.setSelected(true);
-                    }
-                    selected = BusManager.getBusByID(id);
-                    form.revalidate();
-                    form.repaint();
-                }
-            }
-        });
+        //for each bus in the database, add appropriate values
+        for (Bus b : BusManager.getBuses()) {
+            tModel.addRow(new Object[] {
+                    b.getBusID(),
+                    b.getMake(),
+                    b.getModel(),
+                    b.getTankSize(),
+                    b.getFuelBurnRate(),
+                    b.getCruiseSpeed(),
+                    (b instanceof CityBus) ? "City" : "Long Distance"
+            });
+        }
+    }
 
-        //add listener for update button
-        update.addActionListener(e -> {
-            try {
-                tankSize.commitEdit();
-                fuelBurn.commitEdit();
-                cruiseSpeed.commitEdit();
-            } catch (ParseException ex) {
-                JOptionPane.showMessageDialog(null, "Invalid number format");
-                return;
-            }
-            
-            if (selected != null) {
-                if (cityType.isSelected()) {
-                    CityBus newS = new CityBus(
-                            make.getText(),
-                            model.getText(),
-                            ((Number) (tankSize.getValue())).floatValue(),
-                            ((Number) (fuelBurn.getValue())).floatValue(),
-                            ((Number) (cruiseSpeed.getValue())).floatValue()
-                    );
+    //method to handle the selected row
+    private void handleSelection() {
+        int row = table.getSelectedRow();
+        if (row == -1) return;
 
-                    newS.setBusID(selected.getBusID());
-                    BusManager.updateBus(newS);
-                } else {
-                    LongDisBus newS = new LongDisBus(
-                            make.getText(),
-                            model.getText(),
-                            ((Number) (tankSize.getValue())).floatValue(),
-                            ((Number) (fuelBurn.getValue())).floatValue(),
-                            ((Number) (cruiseSpeed.getValue())).floatValue()
-                    );
+        int id = (int) tModel.getValueAt(row, 0);
 
-                    newS.setBusID(selected.getBusID());
-                    BusManager.updateBus(newS);
-                }
-            } else {
-                if (!make.getText().isEmpty() && !model.getText().isEmpty()
-                        && !tankSize.getText().isEmpty() && !fuelBurn.getText().isEmpty()
-                        && !cruiseSpeed.getText().isEmpty()) {
-                    if (cityType.isSelected()) {
+        //for the selected row, set all fields to the appropriate value
+        make.setText(tModel.getValueAt(row, 1).toString());
+        model.setText(tModel.getValueAt(row, 2).toString());
+        tankSize.setValue(tModel.getValueAt(row, 3));
+        fuelBurn.setValue(tModel.getValueAt(row, 4));
+        cruiseSpeed.setValue(tModel.getValueAt(row, 5));
 
-                        CityBus newS = new CityBus(
-                                make.getText(),
-                                model.getText(),
-                                ((Number) (tankSize.getValue())).floatValue(),
-                                ((Number) (fuelBurn.getValue())).floatValue(),
-                                ((Number) (cruiseSpeed.getValue())).floatValue()
-                        );
+        //set selected radio button to the bus' type
+        boolean isCity = tModel.getValueAt(row, 6).toString().equalsIgnoreCase("city");
+        cityType.setSelected(isCity);
+        longDistType.setSelected(!isCity);
 
-                        BusManager.addBus(newS);
-                    } else {
+        selected = BusManager.getBusByID(id);
+    }
 
-                        LongDisBus newS = new LongDisBus(
-                                make.getText(),
-                                model.getText(),
-                                ((Number) (tankSize.getValue())).floatValue(),
-                                ((Number) (fuelBurn.getValue())).floatValue(),
-                                ((Number) (cruiseSpeed.getValue())).floatValue()
-                        );
+    //method to update values for a bus
+    private void handleUpdate() {
+        //validate entries in formatted fields
+        try {
+            tankSize.commitEdit();
+            fuelBurn.commitEdit();
+            cruiseSpeed.commitEdit();
+        } catch (ParseException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number format");
+            return;
+        }
 
-                        BusManager.addBus(newS);
-                    }
-                }
-            }
-            clearForm();
-            initTable(tModel);
-            form.revalidate();
-            form.repaint();
-        });
+        //create bus from entries in form
+        Bus bus = createBusFromForm();
 
-        //add listener for delete button
-        delete.addActionListener(e -> {
-            if (selected != null) {
-                int response = JOptionPane.showConfirmDialog(null,
-                        "Are you sure you want to delete this account? This action cannot be undone.",
-                        "Confirm Deletion",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if (response == JOptionPane.YES_OPTION) {
-                    BusManager.deleteBus(selected);
-                    selected = null;
-                    clearForm();
-                    initTable(tModel);
-                    form.revalidate();
-                    form.repaint();
-                } else {
-                    //do nothing, pane will close
-                }
-            }
-        });
+        //if the bus is null, abort
+        if (bus == null) return;
 
-        //failsafe: reinitialize table whenever screen is reentered
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                initTable(tModel);
-            }
-        });
+        //if a bus is already selected, update selected with given info
+        if (selected != null) {
+            bus.setBusID(selected.getBusID());
+            BusManager.updateBus(bus);
+        } else {
+            //otherwise add as a new bus
+            BusManager.addBus(bus);
+        }
 
-        //add all elements to the form
-        form.add(makeTxt, f);
-        f.gridy = 1;
-        form.add(make, f);
+        //refresh the table and clear the form after
+        clearForm();
+        refreshTable();
+    }
 
-        f.gridy = 2;
-        form.add(modelTxt, f);
-        f.gridy = 3;
-        form.add(model, f);
+    //method to delete selected bus
+    private void handleDelete() {
+        // if no bus is selected, abort
+        if (selected == null) return;
 
-        f.gridy = 4;
-        form.add(tankSizeTxt, f);
-        f.gridy = 5;
-        form.add(tankSize, f);
-
-        f.gridy = 6;
-        form.add(fuelBurnTxt, f);
-        f.gridy = 7;
-        form.add(fuelBurn, f);
-
-        f.gridy = 8;
-        form.add(cruiseSpeedTxt, f);
-        f.gridy = 9;
-        form.add(cruiseSpeed, f);
-
-        f.gridy = 10;
-        form.add(busRadio, f);
-
-        f.gridy = 11;
-        form.add(update, f);
-
-        f.gridy = 12;
-        form.add(delete, f);
-
-        JScrollPane stationForm = new JScrollPane(form);
-
-        JSplitPane split = new JSplitPane(
-                JSplitPane.VERTICAL_SPLIT,
-                stationForm,
-                scroll
+        //show confirmation dialog to delete selected bus
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Delete this bus?",
+                "Confirm",
+                JOptionPane.YES_NO_OPTION
         );
-        split.setResizeWeight(0.6);
 
-        add(split, BorderLayout.CENTER);
-        add(tTab, BorderLayout.NORTH);
+        //if user selects yes, delete bus, then refresh
+        if (confirm == JOptionPane.YES_OPTION) {
+            BusManager.deleteBus(selected);
+            clearForm();
+            refreshTable();
+        }
+    }
+
+    //method to create a bus object from values in fields
+    private Bus createBusFromForm() {
+        //if make or model isn't defined, return a null bus
+        if (make.getText().isEmpty() || model.getText().isEmpty()) return null;
+
+        //set appropriate attributes as values in fields
+        float tank = ((Number) tankSize.getValue()).floatValue();
+        float burn = ((Number) fuelBurn.getValue()).floatValue();
+        float speed = ((Number) cruiseSpeed.getValue()).floatValue();
+
+        //set the subclass of the bus depending on radio button selected
+        if (cityType.isSelected()) {
+            return new CityBus(make.getText(), model.getText(), tank, burn, speed);
+        } else {
+            return new LongDisBus(make.getText(), model.getText(), tank, burn, speed);
+        }
+    }
+
+    //clear all fields, and set the selected bus to none
+    private void clearForm() {
+        make.setText("");
+        model.setText("");
+        tankSize.setValue(null);
+        fuelBurn.setValue(null);
+        cruiseSpeed.setValue(null);
+        selected = null;
     }
 }
