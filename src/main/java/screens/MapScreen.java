@@ -148,7 +148,6 @@ public class MapScreen extends JPanel {
                         s.getLongitude(),
                         s.getName()
                 ));
-                System.out.println(s.getName() + " " + s.getLatitude() + " " + s.getLongitude());
             }
 
             // HTML content with Leaflet

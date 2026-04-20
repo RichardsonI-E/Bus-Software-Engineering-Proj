@@ -22,7 +22,7 @@ public class JsonUtilities {
     public static void saveStations(List<Station> stations) {
         Gson gson = new Gson();
 
-        try (FileWriter writer = new FileWriter("src/main/java/json/stations.json")) {
+        try (FileWriter writer = new FileWriter("src/main/java/databases/stations.json")) {
             gson.toJson(stations, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -35,7 +35,7 @@ public class JsonUtilities {
                 .registerTypeAdapter(Station.class, new StationDeserialize())
                 .create();
 
-        try (FileReader reader = new FileReader("src/main/java/json/stations.json")) {
+        try (FileReader reader = new FileReader("src/main/java/databases/stations.json")) {
             return gson.fromJson(reader, new TypeToken<List<Station>>() {}.getType());
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,7 +47,7 @@ public class JsonUtilities {
     public static void saveUsers(List<User> users) {
         Gson gson = new Gson();
 
-        try (FileWriter writer = new FileWriter("src/main/java/json/users.json")) {
+        try (FileWriter writer = new FileWriter("src/main/java/databases/users.json")) {
             gson.toJson(users, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -58,7 +58,7 @@ public class JsonUtilities {
     public static List<User> loadUsers() {
         Gson gson = new Gson();
 
-        try (FileReader reader = new FileReader("src/main/java/json/users.json")) {
+        try (FileReader reader = new FileReader("src/main/java/databases/users.json")) {
             return gson.fromJson(reader, new TypeToken<List<User>>() {
             }.getType());
         } catch (Exception e) {
@@ -71,7 +71,7 @@ public class JsonUtilities {
     public static void saveBuses(List<Bus> buses) {
         Gson gson = new Gson();
 
-        try (FileWriter writer = new FileWriter("src/main/java/json/buses.json")) {
+        try (FileWriter writer = new FileWriter("src/main/java/databases/buses.json")) {
             gson.toJson(buses, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -84,7 +84,7 @@ public class JsonUtilities {
                 .registerTypeAdapter(Bus.class, new BusDeserialize())
                 .create();
 
-        try (FileReader reader = new FileReader("src/main/java/json/buses.json")) {
+        try (FileReader reader = new FileReader("src/main/java/databases/buses.json")) {
             return gson.fromJson(reader, new TypeToken<List<Bus>>() {
             }.getType());
         } catch (Exception e) {
