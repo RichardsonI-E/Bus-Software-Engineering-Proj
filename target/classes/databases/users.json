@@ -1,1 +1,20 @@
-[{"name":"Elisha McCanick","username":"mccanicke","password":"12345","perms":"admin"},{"name":"John Doe","username":"doej","password":"1234","perms":"admin"},{"name":"James Baxter","username":"baxterj","password":"444","perms":"busManager"}]
+[
+  {
+    "name": "Elisha McCanick",
+    "username": "mccanicke",
+    "password": "12345",
+    "perms": "admin"
+  },
+  {
+    "name": "John Doe",
+    "username": "doej",
+    "password": "1234",
+    "perms": "admin"
+  },
+  {
+    "name": "James Baxter",
+    "username": "baxterj",
+    "password": "444",
+    "perms": "busManager"
+  }
+]
