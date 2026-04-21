@@ -1,0 +1,72 @@
+[
+  {
+    "type": "bus",
+    "name": "Columbia, South Carolina",
+    "longitude": -81.0,
+    "latitude": 34.0,
+    "ID": 537072
+  },
+  {
+    "type": "bus",
+    "name": "Augusta, Georgia",
+    "longitude": -81.97,
+    "latitude": 33.47,
+    "ID": 644506
+  },
+  {
+    "type": "bus",
+    "name": "Atlanta, Georgia",
+    "longitude": -84.23,
+    "latitude": 33.44,
+    "ID": 96172
+  },
+  {
+    "type": "bus",
+    "name": "Charlotte, North Carolina",
+    "longitude": -80.84,
+    "latitude": 35.23,
+    "ID": 416375
+  },
+  {
+    "type": "bus",
+    "name": "Statesville, North Carolina",
+    "longitude": -80.87,
+    "latitude": 35.79,
+    "ID": 830385
+  },
+  {
+    "type": "bus",
+    "name": "Washington, DC",
+    "longitude": -77.04,
+    "latitude": 38.9,
+    "ID": 460115
+  },
+  {
+    "type": "bus",
+    "name": "New York City, New York",
+    "longitude": -73.94,
+    "latitude": 40.67,
+    "ID": 23823
+  },
+  {
+    "type": "bus",
+    "name": "Richmond, Virginia",
+    "longitude": -77.43,
+    "latitude": 37.54,
+    "ID": 353171
+  },
+  {
+    "type": "bus",
+    "name": "Toronto Pearson, Toronto, Canada",
+    "longitude": -79.62,
+    "latitude": 43.68,
+    "ID": 780270
+  },
+  {
+    "type": "bus",
+    "name": "Los Angeles, California",
+    "longitude": -118.41,
+    "latitude": 33.94,
+    "ID": 440839
+  }
+]

@@ -5,78 +5,67 @@ import java.util.List;
 import json.JsonUtilities;
 import primary.Bus;
 import primary.User;
-
+/*
+Bus Manager subclass of user that manages the database of buses.
+The class holds all methods that have to do with modifying, saving and loading
+the list of buses.
+*/
 public class BusManager extends User {
-    // Created Arraylist for buses
+    private static BusManager instance = new BusManager();
+    //Created Arraylist for buses
     private static List<Bus> buses = JsonUtilities.loadBuses();
+    
+    private BusManager(){}; //default constructor
 
-    /* Subclass for bus manager(s) that extends User */
-    public BusManager() {
-    }
-
+    //contructor to inherit the basic user class, auto set perms to "busManager"
     public BusManager(String name, String username, String password, String perms) {
-        super(name, username, password, "busManager");
+            super(name, username, password, "busManager");
     }
 
+    //get the current instance of manager
+    public static BusManager getInstance(){
+        return instance;
+    }
+
+    //get list of buses
+    public static List<Bus> getBuses(){
+        return buses;
+    }
+
+    //find a bus based on the given ID
+    public static Bus getBusByID(int id){
+        for (Bus s : buses){
+            if(s.getBusID() == id) return s;
+        }
+        return null;
+    }
+
+    //add bus to list and save to json
     public static void addBus(Bus bus) {
         buses.add(bus);
         JsonUtilities.saveBuses(buses);
     }
 
-    /* ----------------------------BusManager methods---------------------------- */
-    // private void removeBus(){
-    // System print: Input bus make or ID
-    // Scanner equals new Scanner: bnameID
+    //find bus in list, when id matches given bus, delete from list
+    public static void deleteBus(Bus bus){
+        for (int i = 0; i < buses.size(); i++) {
+            if (buses.get(i).getBusID() == (bus.getBusID())) {
+                buses.remove(i);
+                break;
+            }
+        }
+        JsonUtilities.saveBuses(buses);
+    }
 
-    // for (bus in busList):
-    // if bnameID equals bus.getMake() || bnameID equals
-    // String.valueOf(bus.getBusID()):
-    // busList.remove(bus)
-    // break
-    // else:
-    // System print: Invalid bus name. Please try again.
-    // }
+    //find bus in list, when id matches given bus, update bus with new bus
+    public static void updateBus(Bus updatedBus) {
+        for (int i = 0; i < buses.size(); i++) {
+            if (buses.get(i).getBusID() == (updatedBus.getBusID())) {
+                buses.set(i, updatedBus);
+                break;
+            }
+        }
 
-    // private void updateBus(){
-    // System print: Input bus make or ID
-    // Scanner equals new Scanner: bnameID
-
-    // for (bus in busList):
-    // if bnameID equals bus.getMake() || bnameID equals
-    // String.valueOf(bus.getBusID()):
-    // System print: Input new bus name (or press enter to keep current name)
-    // Scanner equals new Scanner: newBName
-    // if newBName is not empty:
-    // bus.setMake(newBName)
-
-    // System print: Input new bus tank size (or press enter to keep current tank
-    // size)
-    // Scanner equals new Scanner: newBTankSize
-    // if newBTankSize is not empty:
-    // bus.setTankSize(newBTankSize)
-    // else:
-    // System print: Invalid bus name. Please try again.
-    // }
-
-    // private void viewBuses(){
-    // for (bus in busList):
-    // System print: bus.getMake() + " - Model: " + bus.getModel() + ", Tank Size: "
-    // + bus.getTankSize() + ", Fuel Burn Rate: " + bus.getFuelBurnRate() + ",
-    // Cruise Speed: " + bus.getCruiseSpeed()
-    // }
-
-    // private void viewBus(){
-    // System print: Input bus make or ID
-    // Scanner equals new Scanner: bnameID
-
-    // for (bus in busList):
-    // if bnameID equals bus.getMake() || bnameID equals
-    // String.valueOf(bus.getBusID()):
-    // System print: bus.getMake() + " - Model: " + bus.getModel() + ", Tank Size: "
-    // + bus.getTankSize() + ", Fuel Burn Rate: " + bus.getFuelBurnRate() + ",
-    // Cruise Speed: " + bus.getCruiseSpeed()
-    // break
-    // else:
-    // System print: Invalid bus name. Please try again.
-    // }
+        JsonUtilities.saveBuses(buses);
+    }
 }

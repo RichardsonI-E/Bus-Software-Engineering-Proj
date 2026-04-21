@@ -1,38 +1,40 @@
 package primary;
 
-import java.util.Scanner;
-
-public class Bus {
-
-    //Imported Scanner as sc
-    Scanner sc = new Scanner(System.in);
+import java.util.concurrent.ThreadLocalRandom;
+/*This class is to define the main abstract bus object and its two subclasses, city and
+long distance. The ID is determined by a random number from 1 to 1 million while
+the other attributes are defined by its subclass or a manager's input
+*/
+public abstract class Bus {
     
-
     //Declaring Attributes
     private int busID; //ID number of Bus
     private String make; //Make of the Bus
     private String model; //Model of Bus
-    private boolean fuelType;
     private float tankSize; //Size of Tank in gallons
     private float fuelBurnRate; //Fuel burn rate in MPG
-    private float cruiseSpeed; // Most effiecent speed
+    private float cruiseSpeed; // Most efficient speed (miles per hour)
+
+    //abstract attribute to determine if bus takes diesel or unleaded
+    public abstract String getFuel();
 
     //Declare Constructor for Bus Class
-    public Bus(int busID, String make, String model, boolean fuelType, float tankSize, float fuelBurnRate, float cruiseSpeed){
-        this.busID = busID;
+    public Bus(String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
+        //automatically set the id of the bus to a number from 1 to 1 million
+        this.busID = ThreadLocalRandom.current().nextInt(1, 1000000);
         this.make = make;
         this.model = model;
-        this.fuelType = fuelType;
         this.tankSize = tankSize;
         this.fuelBurnRate = fuelBurnRate;
         this.cruiseSpeed = cruiseSpeed;
     }
 
         //------------------------------Setter and getter methods-------------------//
+        //set/get bus ID#
         public void setBusID(int busID){
             this.busID = busID;
         }
-        public int getBusId(){
+        public int getBusID(){
             return busID;
         }
 
@@ -50,14 +52,6 @@ public class Bus {
         }
         public String getModel(){
             return model;
-        }
-
-            //set/get fuelType
-        public void setFuelType(boolean fuelType){
-            this.fuelType = fuelType;
-        }
-        public boolean getFuelType(){
-            return fuelType;
         }
 
             //set/get tankSize
@@ -84,23 +78,35 @@ public class Bus {
             return cruiseSpeed;
         }
 
+        //calculate bus' max range
+        public float calcMaxRange(){
+            return tankSize/fuelBurnRate;
+        }
+
         /*-------------------- Declare Subclass ----------------------*/
-        public class CityBus extends Bus{
-            public CityBus(int busID, String make, String model, float tankSize, float fuelBurnRate){
-                super(busID, make, model, fuelType, tankSize, fuelBurnRate, cruiseSpeed);
+        //declare fuel type as subclass attribute, auto set it to unleaded
+        public static class CityBus extends Bus{
+            private String fuelType;
+            public CityBus(String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
+                super(make, model, tankSize, fuelBurnRate, cruiseSpeed);
+                this.fuelType = "unleaded";
+            }
+            @Override
+            public String getFuel() {
+            return "unleaded";
             }
         }
 
-        public class LongDisBus extends Bus{
-            public LongDisBus(int busID, String make, String model, float tankSize, float fuelBurnRate){
-                super(busID, make, model, fuelType, tankSize, fuelBurnRate, fuelBurnRate);
+        //declare fuel type as subclass attribute, auto set it to diesel
+        public static class LongDisBus extends Bus{
+            private String fuelType;
+            public LongDisBus(String make, String model, float tankSize, float fuelBurnRate, float cruiseSpeed){
+                super(make, model, tankSize, fuelBurnRate, cruiseSpeed);
+                this.fuelType = "diesel";
+            }
+            @Override
+            public String getFuel() {
+            return "diesel";
             }
         }
-
-        //quick test of main class constructor
-    public static void main(String[] args) {
-        System.out.println("test test");
-        Bus bus = new Bus(1234, "Travel", "Cross-Road",true, 80, 10, 55);
-        System.out.println(bus.getBusId() + " " + bus.getMake() + " " + bus.getModel());
-    }
 }

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import primary.Bus;
@@ -19,9 +20,9 @@ public class JsonUtilities {
 
     // method to save stations to "stations.json"
     public static void saveStations(List<Station> stations) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        try (FileWriter writer = new FileWriter("src/main/java/json/stations.json")) {
+        try (FileWriter writer = new FileWriter("src/main/java/databases/stations.json")) {
             gson.toJson(stations, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -30,11 +31,12 @@ public class JsonUtilities {
 
     // method to load stations from "stations.json"
     public static List<Station> loadStations() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Station.class, new StationDeserialize())
+                .create();
 
-        try (FileReader reader = new FileReader("src/main/java/json/stations.json")) {
-            return gson.fromJson(reader, new TypeToken<List<Station>>() {
-            }.getType());
+        try (FileReader reader = new FileReader("src/main/java/databases/stations.json")) {
+            return gson.fromJson(reader, new TypeToken<List<Station>>() {}.getType());
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -43,9 +45,9 @@ public class JsonUtilities {
 
     // method to save users to "users.json"
     public static void saveUsers(List<User> users) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        try (FileWriter writer = new FileWriter("src/main/java/json/users.json")) {
+        try (FileWriter writer = new FileWriter("src/main/java/databases/users.json")) {
             gson.toJson(users, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,9 +56,9 @@ public class JsonUtilities {
 
     // method to load users from "users.json"
     public static List<User> loadUsers() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        try (FileReader reader = new FileReader("src/main/java/json/users.json")) {
+        try (FileReader reader = new FileReader("src/main/java/databases/users.json")) {
             return gson.fromJson(reader, new TypeToken<List<User>>() {
             }.getType());
         } catch (Exception e) {
@@ -67,9 +69,9 @@ public class JsonUtilities {
 
     // method to save stations to "buses.json"
     public static void saveBuses(List<Bus> buses) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        try (FileWriter writer = new FileWriter("src/main/java/json/buses.json")) {
+        try (FileWriter writer = new FileWriter("src/main/java/databases/buses.json")) {
             gson.toJson(buses, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -78,9 +80,11 @@ public class JsonUtilities {
 
     // method to load stations from "buses.json"
     public static List<Bus> loadBuses() {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Bus.class, new BusDeserialize())
+                .create();
 
-        try (FileReader reader = new FileReader("src/main/java/json/buses.json")) {
+        try (FileReader reader = new FileReader("src/main/java/databases/buses.json")) {
             return gson.fromJson(reader, new TypeToken<List<Bus>>() {
             }.getType());
         } catch (Exception e) {
@@ -89,3 +93,4 @@ public class JsonUtilities {
         }
     }
 }
+

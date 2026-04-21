@@ -7,15 +7,17 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -24,283 +26,221 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import components.Session;
 import permissions.Admin;
 import primary.User;
 
 /*The main class associated with the Login Screen. It allows the user to input a username and (hidden)
 password (currently allows login via pressing the button) or create an account, inputting their first and last name,
-then make and confirm a password, in which a username will be automatically generated (not yet tied to User database)*/
+then make and confirm a password, in which a username will be automatically generated*/
 public class LoginScreen extends JPanel {
+    //get parent's layout and container
     private CardLayout cl;
     private JPanel container;
-    User currentUser = null;// to be used to store the given user
 
+    //declare username and password fields in advance
+    private JTextField userField = new JTextField();
+    private JPasswordField passField = new JPasswordField();
+
+    //constructor, create layout and background, init main panel
     public LoginScreen(JFrame parent, CardLayout cl, JPanel container) {
         this.cl = cl;
         this.container = container;
 
-        // set the screen's layout to gridbag with light grey color
         setLayout(new GridBagLayout());
-        setBackground(Color.lightGray);
+        setBackground(Color.LIGHT_GRAY);
 
-        // main container to hold the contents of the login screen
-        JPanel logContainer = new JPanel();
-        logContainer.setBackground(Color.lightGray);
-        logContainer.setLayout(new BoxLayout(logContainer, BoxLayout.Y_AXIS));
+        add(createMainPanel(parent));
+    }
 
-        // define and add placeholder logo
-        JPanel logoP = new JPanel();
-        logoP.setPreferredSize(new Dimension(120, 120));
-        logoP.setMaximumSize(new Dimension(120, 120));
-        logoP.setAlignmentX(Component.CENTER_ALIGNMENT);
-        logoP.setBackground(Color.yellow);
-        logoP.add(new JLabel("(Placeholder)"));
+    // ---------- UI BUILDERS ----------
+    private JPanel createMainPanel(JFrame parent) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(Color.LIGHT_GRAY);
 
-        logContainer.add(logoP);
-        logContainer.add(Box.createRigidArea(new Dimension(0, 15)));
+        //create logo, title and for with proper spacing
+        panel.add(createLogo());
+        panel.add(Box.createVerticalStrut(15));
+        panel.add(createTitle());
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(createForm(parent));
 
-        // define and add Title label
+        return panel;
+    }
+
+    //create the app logo to display on login screen
+    private JPanel createLogo() {
+        JPanel logoPanel = new JPanel();
+        logoPanel.setBackground(Color.LIGHT_GRAY);
+
+        //convert image to icon and define size
+        ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
+        Image scaled = logo.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+
+        //add icon to logo panel
+        logoPanel.add(new JLabel(new ImageIcon(scaled)));
+        return logoPanel;
+    }
+
+    //create title of the form
+    private JLabel createTitle() {
         JLabel title = new JLabel("User Login");
         title.setFont(new Font("Arial", Font.BOLD, 22));
-        title.setBorder(new EmptyBorder(10, 20, 10, 20));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        title.setBackground(Color.lightGray);
-        title.setOpaque(true);
+        return title;
+    }
 
-        logContainer.add(title);
-        logContainer.add(Box.createRigidArea(new Dimension(0, 20)));
+    //create form to input username and password, or create new user
+    private JPanel createForm(JFrame parent) {
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBorder(new EmptyBorder(20, 60, 20, 60));
+        form.setBackground(Color.WHITE);
 
-        // define and add form for login/signup with grid bag layout
-        JPanel form = new JPanel();
-        form.setLayout(new GridBagLayout());
+        GridBagConstraints f = baseConstraints();
+
+        //call method to create user and pass fields
+        addField(form, f, "Username:", userField);
+        addField(form, f, "Password:", passField);
+
+        //create login button and add listener
+        JButton loginBtn = new JButton("Login");
+        loginBtn.addActionListener(e -> handleLogin(parent));
+
+        //create custom label for creating new account
+        JLabel create = createSignupLabel(parent);
+
+        //declare constraints and add components to form
+        f.anchor = GridBagConstraints.CENTER;
+        f.fill = GridBagConstraints.NONE;
+
+        form.add(loginBtn, f);
+        f.gridy++;
+        form.add(create, f);
+
+        return form;
+    }
+
+    //declare main form constraints (vertically aligned)
+    private GridBagConstraints baseConstraints() {
         GridBagConstraints f = new GridBagConstraints();
         f.gridx = 0;
         f.gridy = 0;
         f.fill = GridBagConstraints.HORIZONTAL;
         f.weightx = 1.0;
         f.insets = new Insets(5, 0, 5, 0);
+        return f;
+    }
 
-        form.setBorder(new EmptyBorder(20, 60, 20, 60));
-        form.setPreferredSize(new Dimension(500, 250));
-        form.setOpaque(true);
-        form.setBackground(Color.white);
+    //method to add and style the given field
+    private void addField(JPanel panel, GridBagConstraints f, String label, JComponent field) {
+        //add label to form, go to next row in form
+        panel.add(new JLabel(label), f);
+        f.gridy++;
 
-        // define entries and labels for the username and password
-        JLabel userTxt = new JLabel("Username:");
-        userTxt.setAlignmentX(Component.LEFT_ALIGNMENT);
-        JTextField user = new JTextField();
-        user.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        //restrain field, add to form
+        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        panel.add(field, f);
+        f.gridy++;
+    }
 
-        JLabel passTxt = new JLabel("Password:");
-        passTxt.setAlignmentY(Component.LEFT_ALIGNMENT);
-        JPasswordField pass = new JPasswordField();
-        pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+    // ---------- LOGIN LOGIC ----------
+    private void handleLogin(JFrame parent) {
+        //get contents of username and password field
+        String username = userField.getText();
+        String password = new String(passField.getPassword());
 
-        // creates a login button to validate user input (currently ignores validation)
-        JButton login = new JButton("Login");
-        login.setAlignmentX(Component.CENTER_ALIGNMENT);
-        login.addActionListener(e -> {
-            String userInput = user.getText();
-            String passInput = new String(pass.getPassword());
-            Admin.getUsers();
-            boolean validUser = false;
-            for (int l = 0; l < Admin.getUsers().size(); l++) {
-                if (Admin.getUsers().get(l).getUsername().equalsIgnoreCase(userInput)) {
-                    validUser = true;
-                    if (Admin.getUsers().get(l).getPassword().equals(passInput)) {
-                        currentUser = Admin.getUsers().get(l);
-                        pass.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                        user.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                        cl.show(container, "home");
-                    } else {
-                        JOptionPane.showMessageDialog(parent, "Incorrect Password", "Error",
-                                JOptionPane.WARNING_MESSAGE);
-                        pass.setBorder(BorderFactory.createLineBorder(Color.RED));
-                        user.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-                    }
-                    break;
-                }
-            }
-            if (!validUser) {
-                JOptionPane.showMessageDialog(parent, "Username not Found", "Error", JOptionPane.WARNING_MESSAGE);
-                user.setBorder(BorderFactory.createLineBorder(Color.RED));
-                pass.setBorder(BorderFactory.createLineBorder(Color.RED));
-            }
-            /*
-             * if(userIn.equalsIgnoreCase("Test")
-             * && passIn.equalsIgnoreCase("Test")){
-             *
-             * }/*
-             * /*
-             * for (user i : users){
-             * if (i.getUsername == userIn){
-             * if (i.getPassword == passIn){
-             * //return given user
-             * }else{
-             * pass.borderColor(red)
-             * addLabel("Incorrect Password")}
-             * }else{
-             * user.borderColor(red)
-             * addLabel("User not Found")}}
-             * }
-             */
-        });
+        //send to admin.login method to verify
+        User user = Admin.login(username, password);
 
-        // Label to create a new user account
-        JLabel create = new JLabel("Create an Account");
-        create.setForeground(Color.BLUE);
-        create.setAlignmentX(Component.CENTER_ALIGNMENT);
+        //if it returns a user, set as active user and go to home
+        if (user != null) {
+            Session.setUser(user);
+            cl.show(container, "home");
+        } else {
+            //display warning for incorrect credentials
+            JOptionPane.showMessageDialog(parent,
+                "Invalid username or password");
+        }
+    }
 
-        // add all elements to the form
-        form.add(userTxt, f);
-        f.gridy = 1;
-        form.add(user, f);
+    // ---------- SIGNUP ----------
+    //create the hybrid button/label for sign up
+    private JLabel createSignupLabel(JFrame parent) {
+        //set text, color and alignment
+        JLabel label = new JLabel("Create an Account");
+        label.setForeground(Color.BLUE);
+        label.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        f.gridy = 2;
-        form.add(passTxt, f);
-        f.gridy = 3;
-        form.add(pass, f);
-
-        f.gridy = 4;
-        f.anchor = GridBagConstraints.CENTER;
-        f.fill = GridBagConstraints.NONE;
-        form.add(login, f);
-
-        f.gridy = 5;
-        form.add(create, f);
-
-        // add form to the container and add container to screen
-        logContainer.add(form);
-        add(logContainer);
-
-        // -------------functions for login:----------------
-
-        create.addMouseListener(new MouseAdapter() {
-            // if the "create account" is hovered over, change color to dark grey
-            @Override
+        //change the color if hovered over
+        label.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                create.setForeground(Color.DARK_GRAY);
+                label.setForeground(Color.DARK_GRAY);
             }
 
-            // return label to original color when exited
-            @Override
             public void mouseExited(MouseEvent e) {
-                create.setForeground(Color.BLUE);
+                label.setForeground(Color.BLUE);
             }
 
-            // if the label is clicked, trigger a popup to prompt user for information
-            @Override
+            //trigger dialog if clicked
             public void mouseClicked(MouseEvent e) {
-                // add dialog box with grid bag layout
-                JDialog signUp = new JDialog(parent, "Sign Up", true);
-                signUp.getContentPane().setLayout(new GridBagLayout());
-                GridBagConstraints s = new GridBagConstraints();
-                s.gridx = 0;
-                s.gridy = 0;
-                s.fill = GridBagConstraints.HORIZONTAL;
-                s.weightx = 1.0;
-                s.insets = new Insets(5, 0, 5, 0);
-
-                // Label and entry field for the user's first name
-                JLabel fNTxt = new JLabel("First Name:");
-                JTextField firstName = new JTextField();
-                user.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-                // Label and entry field for the user's last name
-                JLabel lNTxt = new JLabel("Last Name:");
-                JTextField lastName = new JTextField();
-                pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-                // Label and entry field for the user's custom password
-                JLabel pTxt = new JLabel("Create a Password:");
-                JPasswordField makePass = new JPasswordField();
-                pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-                // Label and entry field for the user to confirm password
-                JLabel pCTxt = new JLabel("Confirm Password:");
-                JPasswordField confPass = new JPasswordField();
-                pass.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-                // add submit button
-                JButton submit = new JButton("Create Account");
-                // when clicked, check if the created password matches what is in the confirm
-                // password field
-                submit.addActionListener(m -> {
-                    if (!firstName.getText().isEmpty() && !lastName.getText().isEmpty()
-                            && !makePass.getText().isEmpty()) {
-                        if (java.util.Arrays.equals(makePass.getPassword(), confPass.getPassword())) {
-                            String firstNamef = firstName.getText().trim(); // set the final first name for the user
-                            String lastNamef = lastName.getText().trim(); // set the final last name for the user
-
-                            // create and set custom username for user (tbd: create code if created username
-                            // matches one in records)
-                            String usernamef = lastNamef +
-                                    (firstNamef.isEmpty() ? "" : firstNamef.substring(0, 1).toUpperCase());
-                            User newU = new User();
-
-                            // set the new user's full name, username and password
-                            newU.setName(firstNamef + " " + lastNamef);
-                            char[] password = makePass.getPassword();
-                            newU.setPassword(new String(password));
-                            java.util.Arrays.fill(password, '\0'); // clear password from record
-
-                            // contingent: if two usernames are the same, add a 1 to the end of the username
-                            Admin.getUsers();
-                            for (int l = 0; l < Admin.getUsers().size(); l++) {
-                                if (Admin.getUsers().get(l).getUsername().equalsIgnoreCase(usernamef)) {
-                                    usernamef = usernamef + 1;
-                                }
-                            }
-                            newU.setUsername(usernamef);
-                            Admin.addUser(newU);
-
-                            // create confirmation box displaying username and close sign up dialog box
-                            JOptionPane.showMessageDialog(signUp,
-                                    "Your Username: " + usernamef,
-                                    "Account Created!",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                            signUp.dispose();
-                        } else {
-                            // if passwords do not match, display warning accordingly
-                            JOptionPane.showMessageDialog(signUp, "Password does not match confirmation", "Error",
-                                    JOptionPane.WARNING_MESSAGE);
-                        }
-                    } else {
-                        JOptionPane.showMessageDialog(signUp, "All fields must be filled", "Error",
-                                JOptionPane.WARNING_MESSAGE);
-                    }
-                });
-
-                // add all elements to the sign up dialog box
-                signUp.add(fNTxt, s);
-                s.gridy = 1;
-                signUp.add(firstName, s);
-                s.gridy = 2;
-                signUp.add(lNTxt, s);
-                s.gridy = 3;
-                signUp.add(lastName, s);
-                s.gridy = 4;
-                signUp.add(pTxt, s);
-                s.gridy = 5;
-                signUp.add(makePass, s);
-                s.gridy = 6;
-                signUp.add(pCTxt, s);
-                s.gridy = 7;
-                signUp.add(confPass, s);
-
-                s.anchor = GridBagConstraints.CENTER;
-                s.fill = GridBagConstraints.NONE;
-                s.gridy = 8;
-                signUp.add(submit, s);
-
-                // define constraints of dialog box and display it
-                signUp.setSize(400, 300);
-                signUp.setLocationRelativeTo(parent);
-                signUp.setVisible(true);
+                openSignupDialog(parent);
             }
         });
-        /*
-        
-        */
+
+        return label;
+    }
+
+    //set up and display sign up dialog box
+    private void openSignupDialog(JFrame parent) {
+        //create text fields
+        JTextField first = new JTextField();
+        JTextField last = new JTextField();
+        JPasswordField pass = new JPasswordField();
+        JPasswordField confirm = new JPasswordField();
+
+        //add fields and respective labels to form
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("First Name:"));
+        panel.add(first);
+        panel.add(new JLabel("Last Name:"));
+        panel.add(last);
+        panel.add(new JLabel("Password:"));
+        panel.add(pass);
+        panel.add(new JLabel("Confirm Password:"));
+        panel.add(confirm);
+
+        //create confirmation options to confirm or cancel
+        int result = JOptionPane.showConfirmDialog(parent, panel, "Sign Up",
+                JOptionPane.OK_CANCEL_OPTION);
+
+        //if confirmed, trigger sign up method
+        if (result == JOptionPane.OK_OPTION) {
+            handleSignup(parent, first.getText(), last.getText(), pass, confirm);
+        }
+    }
+
+    //handles verifying and adding a new user
+    private void handleSignup(JFrame parent, String first, String last,
+            JPasswordField pass, JPasswordField confirm) {
+
+        //if name fields are empty, show warning
+        if (first.isEmpty() || last.isEmpty()) {
+            JOptionPane.showMessageDialog(parent, "All fields required");
+            return;
+        }
+
+        //if password field isnt the same as confirmation, show warning
+        if (!java.util.Arrays.equals(pass.getPassword(), confirm.getPassword())) {
+            JOptionPane.showMessageDialog(parent, "Passwords do not match");
+            return;
+        }
+
+        //call create Admin.createUser to add to database
+        String username = Admin.createUser(first, last, new String(pass.getPassword()));
+
+        //confirm an account has been created & show username
+        JOptionPane.showMessageDialog(parent,
+                "Account created! Username: " + username);
     }
 }

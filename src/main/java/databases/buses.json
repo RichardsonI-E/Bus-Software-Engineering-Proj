@@ -1,0 +1,47 @@
+[
+  {
+    "fuelType": "unleaded",
+    "busID": 594796,
+    "make": "Blue Bird",
+    "model": "Micro Bird",
+    "tankSize": 40.0,
+    "fuelBurnRate": 6.0,
+    "cruiseSpeed": 70.0
+  },
+  {
+    "fuelType": "diesel",
+    "busID": 162886,
+    "make": "Gillig",
+    "model": "Low Floor",
+    "tankSize": 125.0,
+    "fuelBurnRate": 10.0,
+    "cruiseSpeed": 60.0
+  },
+  {
+    "fuelType": "diesel",
+    "busID": 471781,
+    "make": "MCI",
+    "model": "J4500",
+    "tankSize": 150.0,
+    "fuelBurnRate": 30.0,
+    "cruiseSpeed": 60.0
+  },
+  {
+    "fuelType": "diesel",
+    "busID": 862369,
+    "make": "New Flyer",
+    "model": "XD",
+    "tankSize": 100.0,
+    "fuelBurnRate": 9.0,
+    "cruiseSpeed": 65.0
+  },
+  {
+    "fuelType": "unleaded",
+    "busID": 329594,
+    "make": "Thomas Built Buses",
+    "model": "C2",
+    "tankSize": 100.0,
+    "fuelBurnRate": 8.0,
+    "cruiseSpeed": 65.0
+  }
+]

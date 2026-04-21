@@ -5,14 +5,21 @@ import java.util.List;
 import json.JsonUtilities;
 import primary.User;
 
+/*
+Admin subclass of user that manages the database of users, buses and stations
+The class holds all methods that have to do with modifying, saving and loading
+the list of users.
+*/
 public class Admin extends User {
     private static final Admin instance = new Admin();
     // Created Arraylist for users
     private static List<User> users = JsonUtilities.loadUsers();
 
+    // default constructor, no additional attributes
     private Admin() {
-    }; // default constructor
+    }
 
+    // contructor to inherit the basic user class, auto set perms to "admin"
     public Admin(String name, String username, String password, String perms) {
         super(name, username, password, "admin");
     }
@@ -30,12 +37,87 @@ public class Admin extends User {
         Admin.users = users;
         JsonUtilities.saveUsers(users);
     }
-    // main methods
 
+    // add a user to list and save to json
     public static void addUser(User user) {
         users.add(user);
         JsonUtilities.saveUsers(users);
     }
 
+    // find the given user based on username, then delete the found user and save
+    public static void deleteUser(User user) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getUsername().equals(user.getUsername())) {
+                users.remove(i);
+                break;
+            }
+        }
+        JsonUtilities.saveUsers(users);
+    }
 
+    // update A: if username is unchanged, find given user and update attributes
+    public static void updateUser(User updatedUser) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getUsername().equals(updatedUser.getUsername())) {
+                users.set(i, updatedUser);
+                break;
+            }
+        }
+
+        JsonUtilities.saveUsers(users);
+    }
+
+    // update B: if username was changed, get the old username as well to find
+    // the user, then update with new attributes
+    public static void updateUser(User updatedUser, String ogUsername) {
+        for (int i = 0; i < users.size(); i++) {
+            if (users.get(i).getUsername().equals(ogUsername)) {
+                users.set(i, updatedUser);
+                break;
+            }
+        }
+
+        JsonUtilities.saveUsers(users);
+    }
+
+    // login a user from the login card screen
+    public static User login(String username, String password) {
+        for (User i : users) {
+            if (i.getUsername().equalsIgnoreCase(username)) {
+                if (i.getPassword().equals(password)) {
+                    return i; // found matching credentials
+                } else {
+                    return null; // incorrect password
+                }
+            }
+        }
+        return null; // no matching usename found
+    }
+
+    //create a new user then add to database
+    public static String createUser(String firstName, String lastName, String password) {
+
+        //create username based on first and last name
+        String username = lastName.toLowerCase() +
+                (firstName.isEmpty() ? "" : firstName.substring(0, 1).toLowerCase());
+
+        //if username matches an existing user, add a random string of numbers
+        for (User u : getUsers()) {
+            if (u.getUsername().equalsIgnoreCase(username)) {
+                username += java.util.concurrent.ThreadLocalRandom.current().nextInt(1, 10000);
+            }
+        }
+
+        //declare new user attributes and add to database
+        User newU = new User();
+        newU.setName(firstName + " " + lastName);
+        newU.setUsername(username);
+        newU.setPassword(password);
+        newU.setPerms("basic");
+
+        addUser(newU);
+
+        //return username to class that called this method
+        return username;
+    }
 }
