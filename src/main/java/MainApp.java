@@ -39,7 +39,7 @@ class StartInterface {
         // creates a container to hold the startup screen
 
         JLabel disclaimer = new JLabel(
-            "THIS SOFTWARE IS NOT TO BE USED FOR ROUTE PLANNING PURPOSES");
+                "THIS SOFTWARE IS NOT TO BE USED FOR ROUTE PLANNING PURPOSES");
 
         disclaimer.setFont(new Font("Arial", Font.BOLD, 20));
 
