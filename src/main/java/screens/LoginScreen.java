@@ -76,7 +76,7 @@ public class LoginScreen extends JPanel {
 
         //convert image to icon and define size
         ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
-        Image scaled = logo.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
+        Image scaled = logo.getImage().getScaledInstance(384, 256, Image.SCALE_SMOOTH);
 
         //add icon to logo panel
         logoPanel.add(new JLabel(new ImageIcon(scaled)));

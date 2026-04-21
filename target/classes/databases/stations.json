@@ -68,5 +68,115 @@
     "longitude": -118.41,
     "latitude": 33.94,
     "ID": 440839
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station9330",
+    "longitude": -82.615005,
+    "latitude": 33.72,
+    "ID": 786956
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station9165",
+    "longitude": -80.635,
+    "latitude": 36.17,
+    "ID": 337724
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station5656",
+    "longitude": -82.615005,
+    "latitude": 33.72,
+    "ID": 884358
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station52",
+    "longitude": -79.020004,
+    "latitude": 36.45,
+    "ID": 250970
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station7940",
+    "longitude": -101.32001,
+    "latitude": 33.69,
+    "ID": 963967
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station967",
+    "longitude": -97.725006,
+    "latitude": 36.42,
+    "ID": 526085
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station2402",
+    "longitude": -79.020004,
+    "latitude": 36.45,
+    "ID": 237036
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station6921",
+    "longitude": -97.725006,
+    "latitude": 36.42,
+    "ID": 734495
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station9694",
+    "longitude": -97.725006,
+    "latitude": 36.42,
+    "ID": 180
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station8332",
+    "longitude": -99.705,
+    "latitude": 33.97,
+    "ID": 978446
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station3389",
+    "longitude": -99.705,
+    "latitude": 33.97,
+    "ID": 939682
   }
 ]

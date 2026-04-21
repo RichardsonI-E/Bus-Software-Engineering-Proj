@@ -65,14 +65,14 @@ public class SummaryPanel extends JPanel {
 
     // ---------- UI Construction ----------
 
-    //create panels to display the connecting stations
+    // create panels to display the connecting stations
     private JPanel createStopPanel(Station station, String prefix) {
         JPanel panel = new JPanel(new BorderLayout());
 
-        //add label with prefix, name and coordinates
+        // add label with prefix, name and coordinates
         JLabel label = new JLabel(
-                prefix + station.getName() + " (" + station.getType() + ")"  + " ["
-                + station.getLatitude() + ", " + station.getLongitude() + "]");
+                prefix + station.getName() + " (" + station.getType() + ")" + " ["
+                        + station.getLatitude() + ", " + station.getLongitude() + "]");
         label.setHorizontalAlignment(JLabel.CENTER);
 
         panel.add(label, BorderLayout.CENTER);
@@ -85,7 +85,7 @@ public class SummaryPanel extends JPanel {
         return panel;
     }
 
-    //create panels between each stop displaying the distance and heading
+    // create panels between each stop displaying the distance and heading
     private JPanel createConnectionPanel(RouteLeg leg) {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -125,7 +125,7 @@ public class SummaryPanel extends JPanel {
 
     // ---------- Update Methods ----------
 
-    //update top panel with current eta and bus
+    // update top panel with current eta and bus
     private void updateTopInfo(RoutePlanner planner) {
         int totalMinutes = (int) (planner.getETA() * 60);
         int hours = totalMinutes / 60;
@@ -139,32 +139,33 @@ public class SummaryPanel extends JPanel {
                         + planner.getChosenBus().getModel());
     }
 
-    // update the stops from top to bottom
+
+    //update the route display with each stop in the route
     private void updateRouteDisplay(RoutePlanner planner) {
         centerPanel.removeAll();
         centerPanel.add(Box.createVerticalStrut(8));
 
+        List<Station> points = planner.getPoints();
         List<RouteLeg> legs = planner.getRoute();
 
-        if (legs.isEmpty())
+        if (points.isEmpty())
             return;
 
-        // --- Add FIRST station (start) ---
-        Station first = legs.get(0).getStart();
-        centerPanel.add(createStopPanel(first, "Start: "));
+        // --- Add first station
+        centerPanel.add(createStopPanel(points.get(0), "Start: "));
         centerPanel.add(Box.createVerticalStrut(6));
 
-        // --- add each stop ---
+        // --- Loop through legs
         for (int i = 0; i < legs.size(); i++) {
             RouteLeg leg = legs.get(i);
 
-            // Add connection info (distance and heading)
+            // get distance and heading between stations
             centerPanel.add(createConnectionPanel(leg));
             centerPanel.add(Box.createVerticalStrut(6));
 
-            // Add destination station
+            // next station
             String prefix = (i == legs.size() - 1) ? "End: " : "Stop: ";
-            centerPanel.add(createStopPanel(leg.getEnd(), prefix));
+            centerPanel.add(createStopPanel(points.get(i + 1), prefix));
             centerPanel.add(Box.createVerticalStrut(6));
         }
     }

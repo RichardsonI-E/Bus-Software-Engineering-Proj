@@ -246,10 +246,7 @@ public class HomeScreen extends JPanel {
         // create a route planner with given stations
         RoutePlanner route = new RoutePlanner(routePoints);
 
-        // if route is invalid, abort
-        if (!route.validateRoute()) {
-            return;
-        }
+        route.validateRoute();
 
         // update the summary panel class with given information
         summaryPanel.updateSummary(route);
@@ -387,17 +384,10 @@ public class HomeScreen extends JPanel {
             return;
         }
 
-        // if route is invalid, show error message to user
-        if (!route.validateRoute()) {
-            JOptionPane.showMessageDialog(null,
-                    "This route is not possible with available buses/refuel stations.",
-                    "Invalid Route",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        route.validateRoute();
 
         // add the route to the map screen and set map as active card
-        mapScreen.setRoute(routePoints, route);
+        mapScreen.setRoute(route.getPoints(), route);
         cl.show(container, "map");
         clearForm();
     }
