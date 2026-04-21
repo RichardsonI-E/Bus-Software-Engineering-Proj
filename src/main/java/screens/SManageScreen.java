@@ -1,32 +1,11 @@
 package screens;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AbstractDocument;
@@ -37,382 +16,324 @@ import permissions.StationManager;
 import primary.Station;
 import primary.Station.BusStation;
 import primary.Station.RefuelStation;
-
+/*
+This screen allows station managers and admins to add, modify or delete buses
+in the database. The radio buttons determine the stations' type and,
+consequentially, the subclass that the bus is saved under. The checkboxes
+determine the fuel types that the station supports (assuming it is a refuel
+station)
+*/
 public class SManageScreen extends JPanel {
+    //get the map, layout and container from parent
     private MapScreen mapScreen;
     private CardLayout cl;
     private JPanel container;
 
-    JPanel fuelHolder = new JPanel();
+    //variable to hold the station that is selected
+    private Station selected = null;
 
-    NumberFormat num = NumberFormat.getNumberInstance();
+    //text fields (formatted) for station information
+    private JTextField name = new JTextField();
+    private JFormattedTextField latitude;
+    private JFormattedTextField longitude;
 
-    // add fields in advance
-    JTextField name = new JTextField();
-    JFormattedTextField longitude = new JFormattedTextField(num);
-    JFormattedTextField latitude = new JFormattedTextField(num);
+    //radio buttons and check boxes to choose stations type and fuels stored
+    private JRadioButton busType = new JRadioButton("Bus");
+    private JRadioButton refuelType = new JRadioButton("Refuel", true);
+    private JCheckBox unleaded = new JCheckBox("Unleaded", true);
+    private JCheckBox diesel = new JCheckBox("Diesel", true);
 
-    ButtonGroup sType = new ButtonGroup();
-    JRadioButton busType = new JRadioButton("Bus");
-    JRadioButton refuelType = new JRadioButton("Refuel", true);
+    //panel to hold the fuel type checkboxes
+    private JPanel fuelHolder = new JPanel();
 
-    JCheckBox unleaded = new JCheckBox("Unleaded", true);
-    JCheckBox diesel = new JCheckBox("Diesel", true);
+    //model for the table of stations
+    private DefaultTableModel model;
 
-    // add a selected station for manager to update or delete
-    Station selected = null;
+    //format to only take numbers in the given textfield
+    private NumberFormat num = NumberFormat.getNumberInstance();
 
-    private boolean verifyCoords(float x, float y) {
-        return x >= 24.5 && x <= 71.4 &&
-                y >= -168 && y <= -52;
+    // ===================== CONSTRUCTOR =====================
+    public SManageScreen(JFrame parent, CardLayout cl, JPanel container, MapScreen mapScreen) {
+        this.mapScreen = mapScreen;
+        this.cl = cl;
+        this.container = container;
+
+        //set lat and long as number format
+        latitude = new JFormattedTextField(num);
+        longitude = new JFormattedTextField(num);
+
+        //filter symbols/numbers out of string
+        ((AbstractDocument) name.getDocument()).setDocumentFilter(new FilterString());
+
+        setLayout(new BorderLayout());
+
+        //add station screen version of top tab
+        add(new topTab("Manage Stations", cl, container, this), BorderLayout.NORTH);
+        add(createMainPanel(), BorderLayout.CENTER);
     }
 
-    private void initTable(DefaultTableModel model) {
-        model.setRowCount(0); // clear table
+    //create main panel, vertically split for station table and form
+    private JSplitPane createMainPanel() {
+        JPanel form = createFormPanel();
+        JScrollPane table = createTable();
 
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                new JScrollPane(form), table);
+        split.setResizeWeight(0.6);
+
+        return split;
+    }
+
+    private JPanel createFormPanel() {
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setBorder(new EmptyBorder(20, 60, 20, 60));
+
+        GridBagConstraints f = createGBC();
+
+        //create fields with labels
+        addField(form, f, new JLabel("Name:"), name);
+        addField(form, f, new JLabel("Latitude (24.5–71.4):"), latitude);
+        addField(form, f, new JLabel("Longitude (-168 to -52):"), longitude);
+
+        //add the buttons and fields to form
+        form.add(createStationTypePanel(), nextRow(f));
+        form.add(createFuelPanel(), nextRow(f));
+        form.add(createUpdateButton(), nextRow(f));
+        form.add(createDeleteButton(), nextRow(f));
+
+        return form;
+    }
+
+    private JScrollPane createTable() {
+        //create table with station attributes as column labels
+        String[] col = { "ID", "Name", "Latitude", "Longitude", "Type", "Fuel" };
+
+        //prevent cells from being edited
+        model = new DefaultTableModel(col, 0) {
+            public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        //initialize table and add selected listener
+        JTable table = new JTable(model);
+        initTable();
+        addTableListener(table);
+
+        return new JScrollPane(table);
+    }
+
+    //create panel to hold station type radio buttons
+    private JPanel createStationTypePanel() {
+        ButtonGroup group = new ButtonGroup();
+        group.add(busType);
+        group.add(refuelType);
+
+        JPanel panel = new JPanel();
+        panel.add(busType);
+        panel.add(refuelType);
+
+        //add action listeners to both radio buttons
+        ActionListener listener = e -> fuelHolder.setVisible(refuelType.isSelected());
+        busType.addActionListener(listener);
+        refuelType.addActionListener(listener);
+
+        return panel;
+    }
+
+    //add fuel checkboxes to panel
+    private JPanel createFuelPanel() {
+        fuelHolder.add(unleaded);
+        fuelHolder.add(diesel);
+        return fuelHolder;
+    }
+
+    //create the update button for the form
+    private JButton createUpdateButton() {
+        JButton btn = new JButton("Add / Update");
+        btn.setBackground(Color.BLUE);
+        btn.addActionListener(e -> handleUpdate());
+        return btn;
+    }
+
+    //create the delete button for the form
+    private JButton createDeleteButton() {
+        JButton btn = new JButton("Delete");
+        btn.setBackground(Color.RED);
+        btn.addActionListener(e -> handleDelete());
+        return btn;
+    }
+
+    private void initTable() {
+        //clear table rows before initialization
+        model.setRowCount(0);
+
+        //if given station is bus, ignore fuel type field
         for (Station s : StationManager.getStations()) {
-            if (s instanceof Station.BusStation) {
+            if (s instanceof BusStation) {
                 model.addRow(new Object[] {
-                        s.getID(),
-                        s.getName(),
-                        s.getLatitude(),
-                        s.getLongitude(),
-                        s.getType()
+                        s.getID(), s.getName(), s.getLatitude(), s.getLongitude(), s.getType(), ""
                 });
-            } else if (s instanceof Station.RefuelStation r) {
-                StringBuilder fuelTypes = new StringBuilder();
-                for (int x = 0; x < r.getFuelType().size(); x++) {
-                    fuelTypes.append(r.getFuelType().get(x));
-                    if (x != r.getFuelType().size() - 1) {
-                        fuelTypes.append(", ");
-                    }
-                }
+        //if station is refuel, add supported fuels
+            } else if (s instanceof RefuelStation r) {
                 model.addRow(new Object[] {
-                        s.getID(),
-                        s.getName(),
-                        s.getLatitude(),
-                        s.getLongitude(),
-                        s.getType(),
-                        fuelTypes.toString()
+                        s.getID(), s.getName(), s.getLatitude(), s.getLongitude(),
+                        s.getType(), String.join(", ", r.getFuelType())
                 });
             }
         }
     }
 
+    //listener to get selected stations
+    private void addTableListener(JTable table) {
+        table.getSelectionModel().addListSelectionListener(e -> {
+            //abort if table is being adjusted
+            if (e.getValueIsAdjusting()) return;
+
+            //get the row the user selected
+            int row = table.getSelectedRow();
+            if (row == -1) return;
+
+            selected = StationManager.getStationByID((int) model.getValueAt(row, 0));
+
+            //set the fields to respective values from station
+            name.setText(model.getValueAt(row, 1).toString());
+            latitude.setText(model.getValueAt(row, 2).toString());
+            longitude.setText(model.getValueAt(row, 3).toString());
+
+            //select appropriate type for the station and hide fuels if bus station
+            boolean isBus = model.getValueAt(row, 4).equals("bus");
+            busType.setSelected(isBus);
+            refuelType.setSelected(!isBus);
+            fuelHolder.setVisible(!isBus);
+
+            //if refuel station, convert supported fuels to string to select checkboxes
+            if (!isBus) setFuelSelection(model.getValueAt(row, 5).toString());
+        });
+    }
+
+    //method to get the supported fuels from a station
+    private void setFuelSelection(String fuelStr) {
+        //set both to false in advance
+        unleaded.setSelected(false);
+        diesel.setSelected(false);
+
+        //select each check if it matches contents of fueltype string
+        for (String f : fuelStr.replace(",", "").split(" ")) {
+            if (f.equalsIgnoreCase("unleaded")) unleaded.setSelected(true);
+            if (f.equalsIgnoreCase("diesel")) diesel.setSelected(true);
+        }
+    }
+
+    private void handleUpdate() {
+        try {
+            //get values in lat and long fields as float
+            float lat = Float.parseFloat(latitude.getText());
+            float lon = Float.parseFloat(longitude.getText());
+
+            //check if coordinates are within North America
+            if (!verifyCoords(lat, lon)) {
+                showError("Invalid coordinates");
+                return;
+            }
+
+            //create a new station with given coordinates
+            Station s = createStation(lat, lon);
+
+            //if a station is selected update with new information
+            if (selected != null) {
+                s.setID(selected.getID());
+                StationManager.updateStation(s);
+            //otherwise, add as a new station
+            } else {
+                StationManager.addStation(s);
+            }
+
+            //reload the form and table
+            refresh();
+        } catch (Exception ex) {
+            showError("Invalid input");
+        }
+    }
+
+    private void handleDelete() {
+        //if no station is selected, abort
+        if (selected == null) return;
+
+        //show confirmation dialog to delete station
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Delete this station?", "Confirm",
+                JOptionPane.YES_NO_OPTION);
+
+        //if confirmed, remove station and reload the form and table
+        if (confirm == JOptionPane.YES_OPTION) {
+            StationManager.deleteStation(selected);
+            refresh();
+        }
+    }
+
+    //create a station with given coordinates
+    private Station createStation(float lat, float lon) {
+        //if station is a bus station: add as bus station subclass
+        if (busType.isSelected()) {
+            return new BusStation(name.getText(), lat, lon);
+        }
+
+        //add fuels to the supported fuels if checkbox is selected
+        ArrayList<String> fuels = new ArrayList<>();
+        if (diesel.isSelected()) fuels.add("diesel");
+        if (unleaded.isSelected()) fuels.add("unleaded");
+
+        //create refuel station with name, coords, and supported fuels
+        return new RefuelStation(name.getText(), lat, lon, fuels);
+    }
+
+    //method to reload the page
+    private void refresh() {
+        //no station selected
+        selected = null;
+        //remove values from form fields
+        clearForm();
+        //restart table
+        initTable();
+        //update map with new station info
+        mapScreen.refreshStations();
+    }
+
+    //remove values from form fields
     private void clearForm() {
         name.setText("");
         latitude.setText("");
         longitude.setText("");
-        selected = null;
     }
 
-    public SManageScreen(JFrame parent, CardLayout cl, JPanel container,
-            MapScreen mapScreen) {
-        this.mapScreen = mapScreen;
-        this.cl = cl;
-        this.container = container;
+    //check if the coodinates are within North America
+    private boolean verifyCoords(float lat, float lon) {
+        return lat >= 24.5 && lat <= 71.4 && lon >= -168 && lon <= -52;
+    }
 
-        ((AbstractDocument) name.getDocument()).setDocumentFilter(
-                new FilterString());
+    //show error message when unexpected error occurs
+    private void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.WARNING_MESSAGE);
+    }
 
-        setLayout(new BorderLayout()); // set page layout as a borderlayout
-
-        topTab tTab = new topTab("Manage Stations", cl, container, this);
-
-        // define and add form for Station Settings
-        JPanel form = new JPanel();
-        form.setLayout(new GridBagLayout());
+    //constrain form
+    private GridBagConstraints createGBC() {
         GridBagConstraints f = new GridBagConstraints();
         f.gridx = 0;
-        f.gridy = 0;
         f.fill = GridBagConstraints.HORIZONTAL;
         f.weightx = 1.0;
         f.insets = new Insets(5, 0, 5, 0);
+        return f;
+    }
 
-        form.setBorder(new EmptyBorder(20, 60, 20, 60));
-        form.setOpaque(true);
+    //get the next available row in form
+    private GridBagConstraints nextRow(GridBagConstraints f) {
+        f.gridy++;
+        return f;
+    }
 
-        // define entries and labels for the station's name, username, and password
-        JLabel nameTxt = new JLabel("Name:");
-        nameTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
-        name.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-        JLabel latTxt = new JLabel("Latitude (between 24.5 and 71.4):");
-        latTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
-        latitude.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-        JLabel longTxt = new JLabel("Longitude (between -168 and -52):");
-        longTxt.setAlignmentX(Component.CENTER_ALIGNMENT);
-        longitude.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-        sType.add(busType);
-        sType.add(refuelType);
-        busType.setAlignmentX(Component.CENTER_ALIGNMENT);
-        refuelType.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JPanel stationRadio = new JPanel();
-        stationRadio.setAlignmentX(Component.CENTER_ALIGNMENT);
-        stationRadio.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        stationRadio.add(busType);
-        stationRadio.add(refuelType);
-
-        fuelHolder.add(unleaded);
-        fuelHolder.add(diesel);
-        fuelHolder.setAlignmentX(Component.CENTER_ALIGNMENT);
-        fuelHolder.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-
-        // button to update the station's account information
-        JButton update = new JButton("Add/Update Station");
-        update.setAlignmentX(Component.CENTER_ALIGNMENT);
-        update.setBackground(Color.BLUE);
-        update.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
-
-        // button to delete the station's account
-        JButton delete = new JButton("Delete Station");
-        delete.setAlignmentX(Component.CENTER_ALIGNMENT);
-        delete.setBackground(Color.RED);
-        delete.setMaximumSize(new Dimension(Integer.MAX_VALUE / 3, 60));
-
-        // create table of StationManager.getStations() for manager to select
-        String[] col = { "ID", "Name", "Latitude", "Longitude",
-                "Station Type", "Supported Fuel(s)" };
-
-        DefaultTableModel model = new DefaultTableModel(col, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                // Return false to make all cells non-editable
-                return false;
-            }
-        };
-
-        JTable table = new JTable(model);
-
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setPreferredSize(new Dimension(500, 200));
-        initTable(model);
-
-        // Add a listener for table: when a station is selected, fill all fields
-        table.getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                int row = table.getSelectedRow();
-
-                if (row != -1) {
-                    int id = (int) model.getValueAt(row, 0);
-                    String nameV = model.getValueAt(row, 1).toString();
-                    String latitudeV = model.getValueAt(row, 2).toString();
-                    String longitudeV = model.getValueAt(row, 3).toString();
-                    String typeV = model.getValueAt(row, 4).toString();
-
-                    name.setText(nameV);
-                    latitude.setText(latitudeV);
-                    longitude.setText(longitudeV);
-
-                    if (typeV.equals("bus")) {
-                        busType.setSelected(true);
-                        refuelType.setSelected(false);
-                        fuelHolder.setVisible(false);
-                    } else {
-                        busType.setSelected(false);
-                        refuelType.setSelected(true);
-                        fuelHolder.setVisible(true);
-                        String[] fuelsV = model.getValueAt(row, 5).toString()
-                                .replace(",", "").split(" ");
-
-                        unleaded.setSelected(false);
-                        diesel.setSelected(false);
-
-                        for (String i : fuelsV) {
-                            if (i.equals("Unleaded")) {
-                                unleaded.setSelected(true);
-                            }
-                            if (i.equals("Diesel")) {
-                                diesel.setSelected(true);
-                            }
-                        }
-                    }
-                    selected = StationManager.getStationByID(id);
-                    form.revalidate();
-                    form.repaint();
-                }
-            }
-        });
-
-        // listener for station type radiogroup:
-        ActionListener radioListener = e -> {
-            JRadioButton rb = (JRadioButton) e.getSource();
-            if (rb.isSelected()) {
-                if (rb.getText().equals("Bus")) {
-                    fuelHolder.setVisible(false);
-                } else if (rb.getText().equals("Refuel")) {
-                    fuelHolder.setVisible(true);
-                }
-                form.revalidate();
-                form.repaint();
-            }
-        };
-        busType.addActionListener(radioListener);
-        refuelType.addActionListener(radioListener);
-
-        // add listener for update button
-        update.addActionListener(e -> {
-            if (selected != null) {
-                float lat = Float.parseFloat(latitude.getText());
-                float lon = Float.parseFloat(longitude.getText());
-
-                if (verifyCoords(lat, lon)) {
-                    if (busType.isSelected()) {
-                        BusStation newS = new BusStation(
-                                name.getText(),
-                                lat,
-                                lon);
-                        newS.setID(selected.getID());
-
-                        StationManager.updateStation(newS);
-                        // update map with new station data
-                        mapScreen.refreshStations();
-                    } else {
-
-                        ArrayList<String> fuels = new ArrayList<>();
-                        if (diesel.isSelected()) {
-                            fuels.add("diesel");
-                        }
-                        if (unleaded.isSelected()) {
-                            fuels.add("unleaded");
-                        }
-
-                        RefuelStation newS = new RefuelStation(
-                                name.getText(),
-                                lat,
-                                lon,
-                                fuels);
-
-                        newS.setID(selected.getID());
-                        StationManager.updateStation(newS);
-                        // update map with new station data
-                        mapScreen.refreshStations();
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null,
-                            "Coordinates are out of service area.",
-                            "Invalid Coordinates",
-                            JOptionPane.WARNING_MESSAGE);
-                }
-            } else {
-                float lat = Float.parseFloat(latitude.getText());
-                float lon = Float.parseFloat(longitude.getText());
-
-                if (verifyCoords(lat, lon)) {
-                    if (!name.getText().isEmpty() && !latitude.getText().isEmpty()
-                            && !longitude.getText().isEmpty()) {
-                        if (busType.isSelected()) {
-
-                            BusStation newS = new BusStation(
-                                    name.getText(),
-                                    lat,
-                                    lon);
-
-                            StationManager.addStation(newS);
-                            // update map with new station data
-                            mapScreen.refreshStations();
-                        } else {
-
-                            ArrayList<String> fuels = new ArrayList<>();
-                            if (diesel.isSelected()) {
-                                fuels.add("diesel");
-                            }
-                            if (unleaded.isSelected()) {
-                                fuels.add("unleaded");
-                            }
-
-                            RefuelStation newS = new RefuelStation(
-                                    name.getText(),
-                                    lat,
-                                    lon,
-                                    fuels);
-
-                            StationManager.addStation(newS);
-                            // update map with new station data
-                            mapScreen.refreshStations();
-                        }
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(null,
-                            "Coordinates are out of service area.",
-                            "Invalid Coordinates",
-                            JOptionPane.WARNING_MESSAGE);
-                }
-            }
-            clearForm();
-            initTable(model);
-            form.revalidate();
-            form.repaint();
-        });
-
-        // add listener for delete button
-        delete.addActionListener(e -> {
-            if (selected != null) {
-                int response = JOptionPane.showConfirmDialog(null,
-                        "Are you sure you want to delete this account? This action cannot be undone.",
-                        "Confirm Deletion",
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-                if (response == JOptionPane.YES_OPTION) {
-                    StationManager.deleteStation(selected);
-                    // update map with new station data
-                    mapScreen.refreshStations();
-                    selected = null;
-                    clearForm();
-                    initTable(model);
-                    form.revalidate();
-                    form.repaint();
-                } else {
-                    // do nothing, pane will close
-                }
-            }
-        });
-
-        // failsafe: reinitialize table whenever screen is reentered
-        this.addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                initTable(model);
-            }
-        });
-
-        // add all elements to the form
-        form.add(nameTxt, f);
-        f.gridy = 1;
-        form.add(name, f);
-
-        f.gridy = 2;
-        form.add(latTxt, f);
-        f.gridy = 3;
-        form.add(latitude, f);
-
-        f.gridy = 4;
-        form.add(longTxt, f);
-        f.gridy = 5;
-        form.add(longitude, f);
-
-        f.gridy = 6;
-        form.add(stationRadio, f);
-
-        f.gridy = 7;
-        form.add(fuelHolder, f);
-
-        f.gridy = 8;
-        form.add(update, f);
-
-        f.gridy = 9;
-        form.add(delete, f);
-
-        JScrollPane stationForm = new JScrollPane(form);
-
-        JSplitPane split = new JSplitPane(
-                JSplitPane.VERTICAL_SPLIT,
-                stationForm,
-                scroll);
-        split.setResizeWeight(0.6);
-
-        add(split, BorderLayout.CENTER);
-        add(tTab, BorderLayout.NORTH);
+    //add a new field to the form (with appropriate label)
+    private void addField(JPanel panel, GridBagConstraints f, JLabel label, JComponent field) {
+        panel.add(label, f);
+        panel.add(field, nextRow(f));
     }
 }
