@@ -35,7 +35,10 @@ import permissions.BusManager;
 import primary.Bus;
 import primary.Bus.CityBus;
 import primary.Bus.LongDisBus;
-
+/*This screen allows bus managers and admins to add, modify or delete buses
+in the database. The radio buttons determine the bus' type and, consequentially,
+the subclass that the bus is saved under
+*/
 public class BManageScreen extends JPanel {
 
     // get layout and container from parent
@@ -81,8 +84,6 @@ public class BManageScreen extends JPanel {
 
         //filter numbers/symbols out of make and model
         ((AbstractDocument) make.getDocument()).setDocumentFilter(
-                new FilterString());
-        ((AbstractDocument) model.getDocument()).setDocumentFilter(
                 new FilterString());
 
         // limit name fields to 12 characters

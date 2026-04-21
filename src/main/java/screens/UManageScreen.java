@@ -60,21 +60,27 @@ public class UManageScreen extends JPanel {
         JPanel form = new JPanel(new GridBagLayout());
         form.setBorder(new EmptyBorder(20, 60, 20, 60));
 
-        GridBagConstraints f = createGBC();
+        // define constraints of form
+        GridBagConstraints f = new GridBagConstraints();
+        f.gridx = 0;
+        f.gridy = 0;
+        f.fill = GridBagConstraints.HORIZONTAL;
+        f.weightx = 1.0;
+        f.insets = new Insets(5, 0, 5, 0);
 
-        //configure the constraints of the fields
         configureFields();
 
         //create fields with labels
-        addField(form, f, new JLabel("First Name:"), fName);
-        addField(form, f, new JLabel("Last Name:"), lName);
-        addField(form, f, new JLabel("Username:"), userName);
-        addField(form, f, new JLabel("Password:"), pass);
-        addField(form, f, new JLabel("Permissions:"), perms);
+        addFormField(form, f, ("First Name:"), fName);
+        addFormField(form, f, ("Last Name:"), lName);
+        addFormField(form, f, ("Username:"), userName);
+        addFormField(form, f, ("Password:"), pass);
+        addFormField(form, f, ("Permissions:"), perms);
 
         //add the buttons and fields to form
-        form.add(createUpdateButton(), nextRow(f));
-        form.add(createDeleteButton(), nextRow(f));
+        form.add(createUpdateButton(), f);
+        f.gridy++;
+        form.add(createDeleteButton(), f);
 
         return form;
     }
@@ -202,25 +208,14 @@ public class UManageScreen extends JPanel {
         perms.setSelectedItem(null);
     }
 
-    //constrain form
-    private GridBagConstraints createGBC() {
-        GridBagConstraints f = new GridBagConstraints();
-        f.gridx = 0;
-        f.fill = GridBagConstraints.HORIZONTAL;
-        f.weightx = 1.0;
-        f.insets = new Insets(5, 0, 5, 0);
-        return f;
-    }
-
-    //get the next available row in form
-    private GridBagConstraints nextRow(GridBagConstraints f) {
-        f.gridy++;
-        return f;
-    }
-
-    //add a new field to the form (with appropriate label)
-    private void addField(JPanel panel, GridBagConstraints f, JLabel label, JComponent field) {
+    // method to add text fields for each component (and respective label)
+    private void addFormField(JPanel panel, GridBagConstraints f, String labelText, JComponent field) {
+        JLabel label = new JLabel(labelText);
         panel.add(label, f);
-        panel.add(field, nextRow(f));
+        f.gridy++;
+
+        field.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        panel.add(field, f);
+        f.gridy++;
     }
 }

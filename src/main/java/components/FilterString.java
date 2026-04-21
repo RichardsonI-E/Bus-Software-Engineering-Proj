@@ -9,7 +9,7 @@ public class FilterString extends DocumentFilter{
 
     //remove all foreign characters/symbols
     private String filterLetters(String text) {
-        return text.replaceAll("[^a-zA-Z'-]", "");
+        return text.replaceAll("[^\\p{L}'\\- ,]", "");
     }
 
     //insert filtered string into text
