@@ -105,7 +105,7 @@ public class MapScreen extends JPanel {
                 int h = layeredPane.getHeight();
 
                 content.setBounds(0, 0, w, h);
-                summaryPanel.setBounds(10, h - 170, 250, 150);
+                summaryPanel.setBounds(10, h - 245, 375, 225);
             }
         });
 

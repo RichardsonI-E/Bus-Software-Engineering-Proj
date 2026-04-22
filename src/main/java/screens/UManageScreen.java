@@ -41,6 +41,14 @@ public class UManageScreen extends JPanel {
         //add user management version of top tab
         add(new topTab("Manage Users", cl, container, this), BorderLayout.NORTH);
         add(createMainPanel(), BorderLayout.CENTER);
+
+        // add listener to refresh table when card is active
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                refresh();
+            }
+        });
     }
 
     //create main panel, vertically split for station table and form

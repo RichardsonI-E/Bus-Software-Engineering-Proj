@@ -80,7 +80,7 @@ public abstract class Bus {
 
         //calculate bus' max range
         public float calcMaxRange(){
-            return tankSize/fuelBurnRate;
+            return tankSize * fuelBurnRate;
         }
 
         /*-------------------- Declare Subclass ----------------------*/

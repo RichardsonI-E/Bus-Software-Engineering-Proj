@@ -21,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
@@ -45,6 +46,10 @@ public class HomeScreen extends JPanel {
 
     // declare summary panel in advance for methods to use
     private SummaryPanel summaryPanel = new SummaryPanel();
+
+    //add buttons in advance
+    private JButton addStop;
+    private JButton removeStop;
 
     private int stopCount = 0;// amount of stops in the users' route
     // the row in the form the stop components start from
@@ -81,12 +86,12 @@ public class HomeScreen extends JPanel {
     private void initUI() {
         // get "Home" version of topTab
         topTab tTab = new topTab("Home", cl, container, this);
-        JPanel content = createContentPanel();
+        JScrollPane scroll = createContentPanel();
 
         // use a split pane to change size of form/summary
         JSplitPane split = new JSplitPane(
                 JSplitPane.VERTICAL_SPLIT,
-                content,
+                scroll,
                 summaryPanel);
         split.setResizeWeight(0.6);
 
@@ -96,8 +101,9 @@ public class HomeScreen extends JPanel {
     }
 
     // create the main content of the screen (title and form)
-    private JPanel createContentPanel() {
+    private JScrollPane createContentPanel() {
         JPanel content = new JPanel();
+        JScrollPane scroll = new JScrollPane(content);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
         // set title of form
@@ -112,7 +118,7 @@ public class HomeScreen extends JPanel {
         content.add(title);
         content.add(form);
 
-        return content;
+        return scroll;
     }
 
     // method to create main form with labels and combo boxes
@@ -122,7 +128,7 @@ public class HomeScreen extends JPanel {
 
         // set style of form
         form.setBorder(new EmptyBorder(20, 60, 20, 60));
-        form.setPreferredSize(new Dimension(500, 250));
+        form.setPreferredSize(null);
         form.setOpaque(false);
 
         // create a combo box set for arrival and departure
@@ -130,8 +136,8 @@ public class HomeScreen extends JPanel {
         setupComboBox(arrivalStation);
 
         // create buttons to modify stops and submit
-        JButton addStop = createButton("Add Stop", Color.GREEN);
-        JButton removeStop = createButton("Remove Stop", Color.RED);
+        addStop = createButton("Add Stop", Color.GREEN);
+        removeStop = createButton("Remove Stop", Color.RED);
         JButton submit = createButton("Generate Route", Color.BLUE);
 
         // call methods to add components to main content and add respective listeners
@@ -246,10 +252,7 @@ public class HomeScreen extends JPanel {
         // create a route planner with given stations
         RoutePlanner route = new RoutePlanner(routePoints);
 
-        // if route is invalid, abort
-        if (!route.validateRoute()) {
-            return;
-        }
+        route.validateRoute();
 
         // update the summary panel class with given information
         summaryPanel.updateSummary(route);
@@ -288,6 +291,7 @@ public class HomeScreen extends JPanel {
 
             form.revalidate();
             form.repaint();
+            
         });
 
         // if the amount of stops is already maximum, ignore
@@ -309,10 +313,6 @@ public class HomeScreen extends JPanel {
             form.add(label, f);
 
             f.gridy = currentRow++;
-            form.add(box, f);
-
-            form.add(label, f);
-            f.gridy++;
             form.add(box, f);
 
             // add label and combo box to list of stop components
@@ -387,17 +387,13 @@ public class HomeScreen extends JPanel {
             return;
         }
 
-        // if route is invalid, show error message to user
-        if (!route.validateRoute()) {
-            JOptionPane.showMessageDialog(null,
-                    "This route is not possible with available buses/refuel stations.",
-                    "Invalid Route",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        route.validateRoute();
 
         // add the route to the map screen and set map as active card
-        mapScreen.setRoute(routePoints, route);
+        for (Station s : route.getPoints()) {
+            System.out.println(s.getName());
+        }
+        mapScreen.setRoute(route.getPoints(), route);
         cl.show(container, "map");
         clearForm();
     }
@@ -515,7 +511,9 @@ public class HomeScreen extends JPanel {
 
         stopCount = 0;
         stops.clear();
+        currentRow = 6;
 
+        updateButtons(addStop, removeStop);
         revalidate();
         repaint();
     }
