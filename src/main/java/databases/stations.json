@@ -178,5 +178,55 @@
     "longitude": -99.705,
     "latitude": 33.97,
     "ID": 939682
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "diesel"
+    ],
+    "name": "Auto Station: 9083",
+    "longitude": -79.57828,
+    "latitude": 43.60269,
+    "ID": 272107
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "diesel"
+    ],
+    "name": "Auto Station: 5523",
+    "longitude": -79.57828,
+    "latitude": 43.60269,
+    "ID": 337956
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "diesel"
+    ],
+    "name": "Auto Station: 353",
+    "longitude": -80.5215,
+    "latitude": 37.35645,
+    "ID": 225267
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "diesel"
+    ],
+    "name": "Auto Station: 9357",
+    "longitude": -78.42291,
+    "latitude": 41.462143,
+    "ID": 824462
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "diesel"
+    ],
+    "name": "Auto Station: 3212",
+    "longitude": -74.89593,
+    "latitude": 40.1242,
+    "ID": 316575
   }
 ]

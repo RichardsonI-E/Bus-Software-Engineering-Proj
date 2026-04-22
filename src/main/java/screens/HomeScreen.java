@@ -21,6 +21,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
@@ -81,12 +82,12 @@ public class HomeScreen extends JPanel {
     private void initUI() {
         // get "Home" version of topTab
         topTab tTab = new topTab("Home", cl, container, this);
-        JPanel content = createContentPanel();
+        JScrollPane scroll = createContentPanel();
 
         // use a split pane to change size of form/summary
         JSplitPane split = new JSplitPane(
                 JSplitPane.VERTICAL_SPLIT,
-                content,
+                scroll,
                 summaryPanel);
         split.setResizeWeight(0.6);
 
@@ -96,8 +97,9 @@ public class HomeScreen extends JPanel {
     }
 
     // create the main content of the screen (title and form)
-    private JPanel createContentPanel() {
+    private JScrollPane createContentPanel() {
         JPanel content = new JPanel();
+        JScrollPane scroll = new JScrollPane(content);
         content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 
         // set title of form
@@ -112,7 +114,7 @@ public class HomeScreen extends JPanel {
         content.add(title);
         content.add(form);
 
-        return content;
+        return scroll;
     }
 
     // method to create main form with labels and combo boxes
@@ -122,7 +124,7 @@ public class HomeScreen extends JPanel {
 
         // set style of form
         form.setBorder(new EmptyBorder(20, 60, 20, 60));
-        form.setPreferredSize(new Dimension(500, 250));
+        form.setPreferredSize(null);
         form.setOpaque(false);
 
         // create a combo box set for arrival and departure
@@ -308,10 +310,6 @@ public class HomeScreen extends JPanel {
             f.gridy = currentRow++;
             form.add(box, f);
 
-            form.add(label, f);
-            f.gridy++;
-            form.add(box, f);
-
             // add label and combo box to list of stop components
             stops.add(new JComponent[] { label, box });
 
@@ -387,6 +385,9 @@ public class HomeScreen extends JPanel {
         route.validateRoute();
 
         // add the route to the map screen and set map as active card
+        for(Station s : route.getPoints()){
+            System.out.println(s.getName());
+        }
         mapScreen.setRoute(route.getPoints(), route);
         cl.show(container, "map");
         clearForm();
