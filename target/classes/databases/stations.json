@@ -228,5 +228,15 @@
     "longitude": -74.89593,
     "latitude": 40.1242,
     "ID": 316575
+  },
+  {
+    "type": "refuel",
+    "fuelType": [
+      "unleaded"
+    ],
+    "name": "Auto Station: 1972",
+    "longitude": -76.50678,
+    "latitude": 39.20445,
+    "ID": 769430
   }
 ]

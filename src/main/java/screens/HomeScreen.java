@@ -47,6 +47,10 @@ public class HomeScreen extends JPanel {
     // declare summary panel in advance for methods to use
     private SummaryPanel summaryPanel = new SummaryPanel();
 
+    //add buttons in advance
+    private JButton addStop;
+    private JButton removeStop;
+
     private int stopCount = 0;// amount of stops in the users' route
     // the row in the form the stop components start from
     private int currentRow = 6;
@@ -132,8 +136,8 @@ public class HomeScreen extends JPanel {
         setupComboBox(arrivalStation);
 
         // create buttons to modify stops and submit
-        JButton addStop = createButton("Add Stop", Color.GREEN);
-        JButton removeStop = createButton("Remove Stop", Color.RED);
+        addStop = createButton("Add Stop", Color.GREEN);
+        removeStop = createButton("Remove Stop", Color.RED);
         JButton submit = createButton("Generate Route", Color.BLUE);
 
         // call methods to add components to main content and add respective listeners
@@ -287,6 +291,7 @@ public class HomeScreen extends JPanel {
 
             form.revalidate();
             form.repaint();
+            
         });
 
         // if the amount of stops is already maximum, ignore
@@ -385,7 +390,7 @@ public class HomeScreen extends JPanel {
         route.validateRoute();
 
         // add the route to the map screen and set map as active card
-        for(Station s : route.getPoints()){
+        for (Station s : route.getPoints()) {
             System.out.println(s.getName());
         }
         mapScreen.setRoute(route.getPoints(), route);
@@ -506,7 +511,9 @@ public class HomeScreen extends JPanel {
 
         stopCount = 0;
         stops.clear();
+        currentRow = 6;
 
+        updateButtons(addStop, removeStop);
         revalidate();
         repaint();
     }
