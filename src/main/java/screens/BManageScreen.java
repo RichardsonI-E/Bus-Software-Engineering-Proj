@@ -319,9 +319,9 @@ public class BManageScreen extends JPanel {
             return null;
 
         // set appropriate attributes as values in fields
-        float tank = ((Number) tankSize.getValue()).floatValue();
-        float burn = ((Number) fuelBurn.getValue()).floatValue();
-        float speed = ((Number) cruiseSpeed.getValue()).floatValue();
+        float tank = Math.abs(((Number) tankSize.getValue()).floatValue());
+        float burn = Math.abs(((Number) fuelBurn.getValue()).floatValue());
+        float speed = Math.abs(((Number) cruiseSpeed.getValue()).floatValue());
 
         // set the subclass of the bus depending on radio button selected
         if (cityType.isSelected()) {

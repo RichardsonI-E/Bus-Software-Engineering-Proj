@@ -44,6 +44,7 @@ public class RoutePlanner {
         if (chosenBus == null) {
             findBus();
         }
+        
         //if a suitable bus wasn't found, abort
         if (chosenBus == null) {
             return false;

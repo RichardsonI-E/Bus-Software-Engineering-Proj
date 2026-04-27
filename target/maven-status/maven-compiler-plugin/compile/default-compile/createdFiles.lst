@@ -21,7 +21,6 @@ permissions\Admin.class
 json\JsonUtilities$1.class
 primary\Station.class
 screens\MapScreen.class
-primary\User$stationManager.class
 screens\SettingsScreen.class
 screens\LoginScreen$1.class
 screens\UManageScreen.class
